@@ -103,7 +103,7 @@ func (s *Server) loadHome(ctx context.Context) (*homeData, error) {
 			d.MedianMS, d.P95MS = st.Median, st.P95
 		}
 		for _, c := range s.Live.Latest(10, nil) {
-			d.Feed = append(d.Feed, feedItem{Hash: c.Hash, Type: c.Type, Account: c.Account, Name: s.Known.Name(c.Account), Amount: c.Amount, Time: c.Time / 1000, ConfirmMS: c.DurationMS})
+			d.Feed = append(d.Feed, feedItem{Hash: c.Hash, Type: c.Type, Account: c.Account, Name: s.displayName(c.Account), Amount: c.Amount, Time: c.Time / 1000, ConfirmMS: c.DurationMS})
 		}
 	}
 	if len(d.Feed) >= 10 {
@@ -133,7 +133,7 @@ func (s *Server) loadHome(ctx context.Context) (*homeData, error) {
 				if !ok || b.BlockAccount == "" {
 					continue
 				}
-				d.Feed = append(d.Feed, feedItem{Hash: h, Type: blockType(b.Subtype, b.Contents.Type), Account: b.BlockAccount, Name: s.Known.Name(b.BlockAccount),
+				d.Feed = append(d.Feed, feedItem{Hash: h, Type: blockType(b.Subtype, b.Contents.Type), Account: b.BlockAccount, Name: s.displayName(b.BlockAccount),
 					Amount: b.Amount, Time: atoi(b.LocalTimestamp), ConfirmMS: dur[h]})
 			}
 		}
@@ -153,7 +153,7 @@ func (s *Server) onlineReps(ctx context.Context) ([]repShare, *big.Int, error) {
 		for a, w := range m {
 			wi := ban.Raw(w)
 			sum.Add(sum, wi)
-			out = append(out, repShare{Account: a, Name: s.Known.Name(a), Weight: wi})
+			out = append(out, repShare{Account: a, Name: s.displayName(a), Weight: wi})
 		}
 		sort.Slice(out, func(i, j int) bool { return out[i].Weight.Cmp(out[j].Weight) > 0 })
 		for i := range out {

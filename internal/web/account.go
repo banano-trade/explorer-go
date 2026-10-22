@@ -45,6 +45,7 @@ type dgList struct {
 }
 
 type accountData struct {
+	BNSNames             []string
 	InsChart             template.HTML
 	DgPending            bool
 	JumpFailed           bool
@@ -108,6 +109,9 @@ func (s *Server) account(w http.ResponseWriter, r *http.Request) {
 		d.Tab = "transactions"
 	}
 	d.Known, d.IsKnown = s.Known.Get(addr)
+	if s.BNS != nil {
+		d.BNSNames = s.BNS.NamesFor(addr)
+	}
 	info, err := s.Node.AccountInfo(ctx, addr)
 	switch {
 	case errors.Is(err, node.ErrNotFound):
@@ -123,7 +127,7 @@ func (s *Server) account(w http.ResponseWriter, r *http.Request) {
 	default:
 		d.Opened = true
 		d.Info = info
-		d.RepName = s.Known.Name(info.Representative)
+		d.RepName = s.displayName(info.Representative)
 		if snap := s.snapshot(ctx); snap != nil {
 			d.RepInfo = snap.By[info.Representative]
 		}
@@ -230,7 +234,7 @@ func (s *Server) account(w http.ResponseWriter, r *http.Request) {
 				if d.Filter != "" && !(t.Type == d.Filter || (d.Filter == "receive" && t.Type == "open")) {
 					continue
 				}
-				t.PartyName = s.Known.Name(t.Party)
+				t.PartyName = s.displayName(t.Party)
 				d.Txs = append(d.Txs, t)
 				if len(d.Txs) == pageSize {
 					break
@@ -255,7 +259,7 @@ func (s *Server) account(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		for _, row := range rcv.Rows {
-			row.FromName = s.Known.Name(row.From)
+			row.FromName = s.displayName(row.From)
 			d.Rcv = append(d.Rcv, row)
 		}
 		d.RcvMore = rcv.Count > len(rcv.Rows)
@@ -288,7 +292,7 @@ func (s *Server) account(w http.ResponseWriter, r *http.Request) {
 		}
 		weight := ban.Raw(d.Info.Weight)
 		for _, h := range sc.TopDelegators[addr] {
-			d.Dgs = append(d.Dgs, dgRow{Account: h.Account, Name: s.Known.Name(h.Account), Balance: h.Balance.String(), Pct: ratio(h.Balance, weight) * 100})
+			d.Dgs = append(d.Dgs, dgRow{Account: h.Account, Name: s.displayName(h.Account), Balance: h.Balance.String(), Pct: ratio(h.Balance, weight) * 100})
 		}
 		d.DgOver1 = sc.DelegatorCount[addr]
 		d.DgMore = d.DgOver1 > len(d.Dgs)
@@ -297,6 +301,8 @@ func (s *Server) account(w http.ResponseWriter, r *http.Request) {
 	title := ban.Short(addr)
 	if d.IsKnown {
 		title = d.Known.Alias
+	} else if len(d.BNSNames) > 0 {
+		title = d.BNSNames[0]
 	}
 	desc := ban.FormatSmart(ban.Raw(d.Info.Balance)) + " BAN"
 	if d.Opened {
@@ -369,7 +375,7 @@ func insightNote(s *Server, r *insights.Result) (string, string) {
 	}
 	top := r.TopRecipients[0]
 	if share := ratio(top.Amount, r.Received); share >= 0.9 && r.RecvN >= 10 {
-		name := s.Known.Name(top.Account)
+		name := s.displayName(top.Account)
 		if name == "" {
 			name = ban.Short(top.Account)
 		}

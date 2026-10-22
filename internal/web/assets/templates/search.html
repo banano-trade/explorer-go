@@ -3,7 +3,7 @@
   {{if ne .Problem "down"}}
   <form role="search" action="/search" style="display: flex; gap: 10px; flex-wrap: wrap; position: relative" autocomplete="off">
     <label for="sq" class="sr">Search</label>
-    <input id="sq" name="q" type="search" value="{{.Query}}" placeholder="ban_ address, block hash or alias" class="mono" data-suggest style="flex: 1 1 360px; min-width: 0; height: 56px; padding: 0 18px; font-size: 16px; border: 2px solid var(--jungle); border-radius: 12px; background: var(--input); color: var(--ink)"{{if not .Query}} autofocus{{end}}>
+    <input id="sq" name="q" type="search" value="{{.Query}}" placeholder="ban_ address, block hash, name or name.ban" class="mono" data-suggest style="flex: 1 1 360px; min-width: 0; height: 56px; padding: 0 18px; font-size: 16px; border: 2px solid var(--jungle); border-radius: 12px; background: var(--input); color: var(--ink)"{{if not .Query}} autofocus{{end}}>
     <button class="btn" type="submit" style="height: 56px">Search</button>
   </form>
   {{end}}
@@ -37,12 +37,18 @@
       <h1 style="font-size: 26px; line-height: 1.2">This account has no blocks yet</h1>
       <p class="mono muted" style="margin: 0; font-size: 14px; overflow-wrap: anywhere">{{.Query}}</p>
       <p style="margin: 0">It picks a representative when it opens. Until then, any rep you choose in your wallet applies from the first block.</p>
+    {{else if eq .Problem "nobns"}}
+      <h1 style="font-size: 26px; line-height: 1.2">Nobody has registered {{.Query}}</h1>
+      <p style="margin: 0">That BNS name was never issued. Check the spelling, or search for an address instead.</p>
+    {{else if eq .Problem "bnsunset"}}
+      <h1 style="font-size: 26px; line-height: 1.2">{{.Query}} doesn't point to an address</h1>
+      <p style="margin: 0">{{if .Burned}}This name was burned and can't be used any more.{{else}}The name exists but its owner hasn't set an address for it yet{{if .Frozen}}, and it's frozen{{end}}.{{end}}{{if .Owner}} It's held by <a href="/account/{{.Owner}}" class="mono">{{short .Owner}}</a>.{{end}}</p>
     {{else if eq .Problem "down"}}
       <h1 style="font-size: 26px; line-height: 1.2">Can't reach our node right now</h1>
       <p style="margin: 0">Try again in a minute. If it keeps happening, check <a href="/health">network health</a>.</p>
     {{else}}
       <h1 style="font-size: 26px; line-height: 1.2">Nothing found{{if .Query}} for “{{.Query}}”{{end}}</h1>
-      <p style="margin: 0">Search takes a full <span class="mono">ban_</span> address, a 64-character block hash, or part of a known account's name.</p>
+      <p style="margin: 0">Search takes a full <span class="mono">ban_</span> address, a 64-character block hash, a BNS name like yusuf.ban, or part of a known account's name.</p>
     {{end}}
     <div style="display: flex; flex-wrap: wrap; gap: 8px">
       <a class="btn" href="/">Go home</a>
@@ -50,7 +56,7 @@
     </div>
   </section>
   {{else}}
-  <p class="muted" style="margin: 0">A full address or 64-character hash opens the page right away. Anything else searches the names of known accounts.</p>
+  <p class="muted" style="margin: 0">A full address or 64-character hash opens the page right away. Names ending in .ban (BNS) open the account they point to. Anything else searches the names of known accounts.</p>
   {{end}}
 </main>
 {{end}}{{end}}

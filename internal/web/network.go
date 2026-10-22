@@ -316,7 +316,7 @@ func (s *Server) richlist(w http.ResponseWriter, r *http.Request) {
 		if len(mrows) == 8 {
 			break
 		}
-		mrows = append(mrows, moverRow{m, s.Known.Name(m.Account)})
+		mrows = append(mrows, moverRow{m, s.displayName(m.Account)})
 	}
 	s.render(w, r, http.StatusOK, "richlist", page{Title: "Rich list", Nav: "rich", Description: "The biggest Banano balances, with known names.", Data: map[string]any{
 		"Scan": sc, "Rows": rows, "HideTeam": hideTeam, "HideEx": hideEx, "Limit": limit,
@@ -374,7 +374,7 @@ func (s *Server) burn(w http.ResponseWriter, r *http.Request) {
 		}
 		shown++
 		if len(rows) < limit {
-			rows = append(rows, burnRow{Burner: b, Name: s.Known.Name(b.Account), Share: ratio(b.Amount, base) * 100})
+			rows = append(rows, burnRow{Burner: b, Name: s.displayName(b.Account), Share: ratio(b.Amount, base) * 100})
 		}
 	}
 	total := new(big.Int).Sub(maxSupply, sc.Burned)

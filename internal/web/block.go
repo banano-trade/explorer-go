@@ -58,9 +58,9 @@ func (s *Server) block(w http.ResponseWriter, r *http.Request) {
 	}
 	c := b.Contents
 	d := &blockData{
-		Hash: h, Type: blockType(b.Subtype, c.Type), Account: b.BlockAccount, AccountName: s.Known.Name(b.BlockAccount),
+		Hash: h, Type: blockType(b.Subtype, c.Type), Account: b.BlockAccount, AccountName: s.displayName(b.BlockAccount),
 		Amount: b.Amount, Balance: b.Balance, Height: b.Height, Time: atoi(b.LocalTimestamp), Confirmed: b.Confirmed == "true",
-		Rep: c.Representative, RepName: s.Known.Name(c.Representative), Previous: c.Previous, Signature: c.Signature, Work: c.Work, Link: c.Link,
+		Rep: c.Representative, RepName: s.displayName(c.Representative), Previous: c.Previous, Signature: c.Signature, Work: c.Work, Link: c.Link,
 	}
 	if d.Previous == zeroHash {
 		d.Previous = ""
@@ -98,7 +98,7 @@ func (s *Server) block(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
-	d.PartyName = s.Known.Name(d.Party)
+	d.PartyName = s.displayName(d.Party)
 	if a, ok := s.Known.Get(d.Party); ok && a.Category == "burn" && d.Type == "send" {
 		d.Burn = true
 	}

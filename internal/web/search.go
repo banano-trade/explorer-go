@@ -1,19 +1,25 @@
 package web
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
+	"net/url"
 	"strings"
+	"time"
 
 	"github.com/banano-trade/explorer-go/internal/ban"
+	"github.com/banano-trade/explorer-go/internal/bns"
 	"github.com/banano-trade/explorer-go/internal/known"
 )
 
 type searchData struct {
-	Query   string
-	Problem string // "", "checksum", "nomatch", "noblock", "nano", "down"
-	Results []known.Account
+	Owner          string // BNS: who holds a name that doesn't resolve
+	Frozen, Burned bool
+	Query          string
+	Problem        string // "", "checksum", "nomatch", "noblock", "nano", "down"
+	Results        []known.Account
 }
 
 // search sends exact addresses and hashes straight to their page and otherwise
@@ -40,6 +46,25 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request) {
 	if strings.HasPrefix(lq, "nano_") || strings.HasPrefix(lq, "xrb_") {
 		s.render(w, r, http.StatusNotFound, "search", page{Title: "Search", Nav: "search", Data: searchData{Query: q, Problem: "nano"}})
 		return
+	}
+	if name, tld, ok := bns.Split(q); ok && s.BNS != nil {
+		ctx, cancel := context.WithTimeout(r.Context(), 10*time.Second)
+		defer cancel()
+		d, err := s.BNS.Lookup(ctx, name+"."+tld)
+		switch {
+		case err == nil && d.Resolves != "":
+			http.Redirect(w, r, "/account/"+d.Resolves+"?bns="+url.QueryEscape(d.Full()), http.StatusFound)
+			return
+		case err == nil:
+			s.render(w, r, http.StatusOK, "search", page{Title: "Search", Nav: "search", Data: searchData{Query: d.Full(), Problem: "bnsunset", Owner: d.Owner, Frozen: d.Frozen, Burned: d.Burned}})
+			return
+		case errors.Is(err, bns.ErrNoName):
+			s.render(w, r, http.StatusNotFound, "search", page{Title: "Search", Nav: "search", Data: searchData{Query: name + "." + tld, Problem: "nobns"}})
+			return
+		default:
+			s.nodeDown(w, r, err)
+			return
+		}
 	}
 	if ban.IsHash(strings.ToUpper(q)) {
 		http.Redirect(w, r, "/block/"+strings.ToUpper(q), http.StatusFound)
@@ -70,6 +95,11 @@ type suggestion struct {
 func (s *Server) suggest(w http.ResponseWriter, r *http.Request) {
 	q := strings.TrimSpace(r.URL.Query().Get("q"))
 	out := []suggestion{}
+	if s.BNS != nil && len(q) >= 2 && len(q) <= 40 {
+		for _, d := range s.BNS.Search(q, 4) {
+			out = append(out, suggestion{Name: d.Full(), Address: d.Resolves, Short: ban.Short(d.Resolves), Category: "BNS", URL: "/account/" + d.Resolves + "?bns=" + url.QueryEscape(d.Full())})
+		}
+	}
 	if len(q) >= 2 && len(q) <= 64 {
 		for _, a := range s.Known.Search(q, 8) {
 			out = append(out, suggestion{Name: a.Alias, Address: a.Address, Short: ban.Short(a.Address), Category: categoryLabel(a.Category), URL: "/account/" + a.Address})

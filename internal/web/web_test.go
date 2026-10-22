@@ -10,6 +10,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/banano-trade/explorer-go/internal/bns"
 	"github.com/banano-trade/explorer-go/internal/health"
 	"github.com/banano-trade/explorer-go/internal/insights"
 	"github.com/banano-trade/explorer-go/internal/known"
@@ -36,6 +37,7 @@ func TestPagesLive(t *testing.T) {
 	s.Health = health.NewChecker(s.Node, nil, s.Log)
 	up, _ := reps.NewUptime("")
 	s.Insights = insights.NewEngine(s.Node, s.Log)
+	s.BNS = &bns.Resolver{Node: s.Node, Log: s.Log}
 	s.Reps = &reps.Directory{Node: s.Node, Uptime: up, Name: k.Name, Log: s.Log}
 	if err := s.Reps.Refresh(context.Background(), false); err != nil {
 		t.Fatal(err)
@@ -83,6 +85,9 @@ func TestPagesLive(t *testing.T) {
 		{"/qr/" + jungle + ".svg?amount=1000", 200, "<svg"},
 		{"/qr/" + jungle + ".svg?amount=-1", 400, ""},
 		{"/menu", 200, "Known accounts"},
+		{"/search?q=yusuf.ban", 302, ""},
+		{"/search?q=Yusuf.BAN", 302, ""},
+		{"/search?q=surelynobodyregisteredthis.ban", 404, "Nobody has registered"},
 		// security regressions
 		{"/account/ban_1ka1ium4pfue3uxtntqsrib8mumxgazsjf58gidh1xeo5te3whsq8z476goo?head=73FDC8927A4BEF21CA369624C3498B4C095CE51933F05269D51E78A0B6CA14FB", 302, ""},
 		{"/og/account/" + strings.ToUpper(jungle) + ".png", 404, ""},

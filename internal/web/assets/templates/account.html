@@ -5,9 +5,10 @@
       <div style="display: flex; gap: 18px; align-items: center">
         <img class="av" src="{{monkey .Address}}" alt="" width="80" height="80" loading="lazy">
         <div class="stack" style="gap: 6px; min-width: 0">
-          <h1 style="font-size: 32px; line-height: 1.1" data-label-for="{{.Address}}">{{if .IsKnown}}{{.Known.Alias}}{{else}}{{short .Address}}{{end}}</h1>
+          <h1 style="font-size: 32px; line-height: 1.1" data-label-for="{{.Address}}">{{if .IsKnown}}{{.Known.Alias}}{{else if .BNSNames}}{{index .BNSNames 0}}{{else}}{{short .Address}}{{end}}</h1>
           <div style="display: flex; flex-wrap: wrap; gap: 6px">
             {{if .IsKnown}}<span class="pill amber">{{catLabel .Known.Category}}</span>{{end}}
+            {{range .BNSNames}}<a class="pill bnspill" href="/search?q={{.}}" title="BNS name pointing to this account">{{.}}</a>{{end}}
             {{if .IsRep}}<span class="pill chg">{{group .DgCount}} delegators</span>{{end}}
             {{if not .Opened}}<span class="pill chg">Not opened yet</span>{{end}}
             {{if gt .Unconfirmed 0}}<span class="pill amber">{{.Unconfirmed}} unconfirmed</span>{{end}}

@@ -77,7 +77,7 @@ func (s *Server) funcs() template.FuncMap {
 			}
 			return "$0"
 		},
-		"name":     s.Known.Name,
+		"name":     s.displayName,
 		"ago":      func(ts string) string { return ago(atoi(ts)) },
 		"when":     func(ts string) string { return when(atoi(ts)) },
 		"agoI":     ago,

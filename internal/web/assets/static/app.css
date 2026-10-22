@@ -389,3 +389,4 @@ pre.raw{margin:0;padding:20px 24px;background:#2A2A2E;color:#E4E4E7;font-size:13
   .chkrow .pill{grid-column:1 / -1}
   .chkrow .rule{grid-column:1 / -1}
 }
+.bnspill{background:var(--in-bg);color:var(--in)}.bnspill:hover{text-decoration:none;color:var(--in)}

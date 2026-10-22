@@ -66,8 +66,13 @@ func (s *Server) drawCard(ctx context.Context, kind, id string) (any, error) {
 		card = s.pageCard(ctx, id)
 	case "account":
 		card = og.Card{Title: ban.Short(id), Mono: ban.Short(id)}
-		if n := s.Known.Name(id); n != "" {
+		if n := s.displayName(id); n != "" {
 			card.Title = n
+		}
+		if s.BNS != nil {
+			if ns := s.BNS.NamesFor(id); len(ns) > 0 && ns[0] != card.Title {
+				card.Kicker = ns[0]
+			}
 		}
 		info, err := s.Node.AccountInfo(ctx, id)
 		switch {
@@ -81,7 +86,7 @@ func (s *Server) drawCard(ctx context.Context, kind, id string) (any, error) {
 			if k, ok := s.Known.Get(id); ok {
 				card.Facts = append(card.Facts, categoryLabel(k.Category))
 			}
-			rep := s.Known.Name(info.Representative)
+			rep := s.displayName(info.Representative)
 			if rep == "" {
 				rep = ban.Short(info.Representative)
 			}
@@ -99,7 +104,7 @@ func (s *Server) drawCard(ctx context.Context, kind, id string) (any, error) {
 		t := blockType(b.Subtype, b.Contents.Type)
 		card.Kicker = strings.ToUpper(t[:1]) + t[1:] + " block"
 		card.Mono = ban.ShortHash(h)
-		who := s.Known.Name(b.BlockAccount)
+		who := s.displayName(b.BlockAccount)
 		if who == "" {
 			who = ban.Short(b.BlockAccount)
 		}

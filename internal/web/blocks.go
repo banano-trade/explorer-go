@@ -30,7 +30,7 @@ type liveRow struct {
 const slowMS = 250
 
 func (s *Server) liveRow(c live.Confirmation) liveRow {
-	r := liveRow{Hash: c.Hash, Type: c.Type, Account: c.Account, Name: s.Known.Name(c.Account), Short: ban.Short(c.Account),
+	r := liveRow{Hash: c.Hash, Type: c.Type, Account: c.Account, Name: s.displayName(c.Account), Short: ban.Short(c.Account),
 		Raw: c.Amount, Time: c.Time / 1000, DurationMS: c.DurationMS, Slow: c.DurationMS > slowMS}
 	if c.Type != "change" && c.Type != "epoch" {
 		r.Amount = ban.FormatSmart(ban.Raw(c.Amount))

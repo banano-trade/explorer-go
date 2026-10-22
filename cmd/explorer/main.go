@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/banano-trade/explorer-go/internal/bns"
 	"github.com/banano-trade/explorer-go/internal/health"
 	"github.com/banano-trade/explorer-go/internal/insights"
 	"github.com/banano-trade/explorer-go/internal/known"
@@ -116,6 +117,8 @@ func main() {
 	srv.Insights = insights.NewEngine(bg, log)
 	go srv.Insights.Run(ctx)
 	srv.Bg = bg
+	srv.BNS = &bns.Resolver{Node: bg, Log: log}
+	go srv.BNS.Run(ctx)
 	srv.Health = health.NewChecker(bg, srv.Live, log)
 	go srv.Health.Run(ctx)
 	hs := &http.Server{Addr: *listen, Handler: srv.Handler(), ReadHeaderTimeout: 10 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 60 * time.Second, IdleTimeout: 120 * time.Second, MaxHeaderBytes: 16 << 10,

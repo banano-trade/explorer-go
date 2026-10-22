@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/banano-trade/explorer-go/internal/ban"
+	"github.com/banano-trade/explorer-go/internal/bns"
 	"github.com/banano-trade/explorer-go/internal/health"
 	"github.com/banano-trade/explorer-go/internal/insights"
 	"github.com/banano-trade/explorer-go/internal/known"
@@ -35,7 +36,8 @@ type Server struct {
 	Live     *live.Feed     // nil when the websocket feed is off
 	Health   *health.Checker
 	Reps     *reps.Directory
-	Bg       *node.Client // background jobs' node client (nil: use Node)
+	BNS      *bns.Resolver // nil: no BNS names
+	Bg       *node.Client  // background jobs' node client (nil: use Node)
 	Ledger   *ledger.Scanner
 	Metrics  *metrics.Sampler
 	Insights *insights.Engine
@@ -269,4 +271,18 @@ func (s *Server) oldExplorer(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	http.Redirect(w, r, "/search?q="+url.QueryEscape(id), http.StatusFound)
+}
+
+// displayName is an account's public name: its known-account alias, else its
+// BNS name, else "".
+func (s *Server) displayName(addr string) string {
+	if n := s.Known.Name(addr); n != "" {
+		return n
+	}
+	if s.BNS != nil {
+		if ns := s.BNS.NamesFor(addr); len(ns) > 0 {
+			return ns[0]
+		}
+	}
+	return ""
 }
