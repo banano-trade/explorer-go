@@ -10,7 +10,8 @@ ExecStart=/usr/local/bin/banano-explorer \
   -node http://[::1]:7072 \
   -ws ws://[::1]:7079 \
   -state /var/lib/banano-explorer \
-  -public-url https://explorer.banano.trade
+  -public-url https://explorer.banano.trade \
+  -own-reps ban_1oaocnrcaystcdtaae6woh381wftyg4k7bespu19m5w18ze699refhyzu6bo
 Restart=always
 RestartSec=2
 

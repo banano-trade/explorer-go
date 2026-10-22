@@ -39,6 +39,7 @@ func main() {
 	importUptime := flag.String("import-uptime", "", "one-time: import spyglass-api rep-uptime files from this directory into -state, then exit")
 	fiat := flag.Bool("fiat", true, "show fiat prices (fetched from CoinGecko every 10 minutes; off = the node is the only data source)")
 	publicURL := flag.String("public-url", "", "public origin for share links and images, e.g. https://explorer.banano.trade")
+	ownReps := flag.String("own-reps", "", "comma-separated representatives that vote from this node (they get its local telemetry)")
 	stateDir := flag.String("state", "data/state", "directory for files the explorer writes")
 	showVersion := flag.Bool("version", false, "print version and exit")
 	flag.Parse()
@@ -96,6 +97,11 @@ func main() {
 		return
 	}
 	srv.Reps = &reps.Directory{Node: bg, Live: srv.Live, Uptime: up, Name: k.Name, Log: log}
+	for _, a := range strings.Split(*ownReps, ",") {
+		if a = strings.TrimSpace(a); a != "" {
+			srv.Reps.OwnReps = append(srv.Reps.OwnReps, a)
+		}
+	}
 	repsDone := make(chan struct{})
 	go func() { srv.Reps.Run(ctx); close(repsDone) }()
 	var burnAddrs []string

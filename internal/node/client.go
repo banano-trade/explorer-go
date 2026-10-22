@@ -397,3 +397,10 @@ func (c *Client) Version(ctx context.Context) (string, error) {
 	err := c.Call(ctx, "version", nil, &r)
 	return r.NodeVendor, err
 }
+
+// TelemetryLocal returns this node's own telemetry (raw telemetry only lists peers).
+func (c *Client) TelemetryLocal(ctx context.Context) (Telemetry, error) {
+	var t Telemetry
+	err := c.Call(ctx, "telemetry", map[string]any{"address": "::1", "port": "7071"}, &t)
+	return t, err
+}

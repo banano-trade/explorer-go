@@ -128,8 +128,9 @@ func (f *Feed) follow(ctx context.Context) error {
 	if err := c.Write(ctx, websocket.MessageText, []byte(sub)); err != nil {
 		return err
 	}
-	// Votes in active elections (no replays), to see which reps take part.
-	if err := c.Write(ctx, websocket.MessageText, []byte(`{"action":"subscribe","topic":"vote"}`)); err != nil {
+	// Every vote, replays and indeterminate ones included: a node's own votes
+	// often arrive that way, and any vote for a block that confirmed counts.
+	if err := c.Write(ctx, websocket.MessageText, []byte(`{"action":"subscribe","topic":"vote","options":{"include_replays":true,"include_indeterminate":true}}`)); err != nil {
 		return err
 	}
 	f.setConnected(true)

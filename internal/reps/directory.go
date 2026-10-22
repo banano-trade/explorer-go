@@ -61,6 +61,9 @@ type Directory struct {
 	Uptime *Uptime
 	Name   Namer
 	Log    *slog.Logger
+	// OwnReps are representatives voting from the explorer's own node; peer
+	// telemetry never includes that node, so they use its local telemetry.
+	OwnReps []string
 
 	mu   sync.RWMutex
 	snap *Snapshot
@@ -192,6 +195,17 @@ func (d *Directory) Refresh(ctx context.Context, record bool) error {
 		hosts[r.Host] = append(hosts[r.Host], r.Account)
 		if n, ok := nodes[net.JoinHostPort(r.Host, port)]; ok {
 			r.HasNode, r.Version, r.Lag, r.Peers = true, n.version, maxCemented-n.cemented, n.peers
+		}
+	}
+	if len(d.OwnReps) > 0 {
+		if t, err := d.Node.TelemetryLocal(ctx); err == nil {
+			c, _ := strconv.ParseInt(t.CementedCount, 10, 64)
+			p, _ := strconv.Atoi(t.PeerCount)
+			for _, a := range d.OwnReps {
+				if r := s.By[a]; r != nil {
+					r.HasNode, r.Version, r.Lag, r.Peers = true, t.MajorVersion+"."+t.MinorVersion, max(0, maxCemented-c), p
+				}
+			}
 		}
 	}
 	for _, accts := range hosts {
