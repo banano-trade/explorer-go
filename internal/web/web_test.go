@@ -74,6 +74,8 @@ func TestPagesLive(t *testing.T) {
 		{"/health", 200, "WeGoodFam"},
 		{"/api/health", 200, "quorum_ratio"},
 		{"/representatives", 200, "Kalium"},
+		{"/api/representatives/scores", 200, `"weightPercentage"`},
+		{"/banano/v1/representatives/scores", 200, `"score"`},
 		{"/delegate", 200, "How the score works"},
 		{"/rep/ban_1ka1ium4pfue3uxtntqsrib8mumxgazsjf58gidh1xeo5te3whsq8z476goo", 200, "Where the points went"},
 		{"/delegate/check?addr=" + jungle, 302, ""},

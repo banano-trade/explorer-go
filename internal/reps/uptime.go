@@ -270,3 +270,15 @@ func (u *Uptime) Days(addr string, n int) []float64 {
 	}
 	return out
 }
+
+// Percent is the online percentage over the last days days (-1 if untracked).
+func (u *Uptime) Percent(addr string, days int) float64 {
+	u.mu.RLock()
+	defer u.mu.RUnlock()
+	h, ok := u.reps[addr]
+	if !ok {
+		return -1
+	}
+	p, _ := h.pct(days * 1440)
+	return p
+}

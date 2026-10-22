@@ -107,6 +107,8 @@ func (s *Server) Handler() http.Handler {
 	mux.HandleFunc("GET /delegate/check", s.delegateCheck)
 	mux.HandleFunc("GET /rep/{addr}", s.repCard)
 	mux.HandleFunc("GET /api/health", s.healthAPI)
+	mux.HandleFunc("GET /api/representatives/scores", s.repScoresAPI)
+	mux.HandleFunc("GET /banano/v1/representatives/scores", s.repScoresAPI) // spyglass-compatible path
 	mux.HandleFunc("GET /api/live", s.liveStream)
 	mux.HandleFunc("GET /api/suggest", s.suggest)
 	mux.HandleFunc("GET /account/{addr}", s.account)
