@@ -185,6 +185,9 @@ func (s *Server) render(w http.ResponseWriter, r *http.Request, code int, name s
 		http.Error(w, "missing template "+name, http.StatusInternalServerError)
 		return
 	}
+	if p.Image == "" && pageCards[p.Nav] && code == http.StatusOK {
+		p.Image = "/og/page/" + p.Nav + ".png"
+	}
 	if s.BaseURL != "" {
 		p.Canonical = s.BaseURL + r.URL.Path
 		if p.Image != "" {

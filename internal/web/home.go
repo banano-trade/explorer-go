@@ -68,7 +68,7 @@ func (s *Server) home(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	v = &d
-	s.render(w, r, http.StatusOK, "home", page{Nav: "home", Description: "Look up any Banano account, block, alias or BNS name.", Data: v})
+	s.render(w, r, http.StatusOK, "home", page{Nav: "home", Description: "Live Banano explorer: accounts, blocks, representatives with rep scores, network health, rich list and burn stats, straight from our own node.", Data: v})
 }
 
 func (s *Server) loadHome(ctx context.Context) (*homeData, error) {

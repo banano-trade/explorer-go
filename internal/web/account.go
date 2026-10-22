@@ -298,7 +298,14 @@ func (s *Server) account(w http.ResponseWriter, r *http.Request) {
 	if d.IsKnown {
 		title = d.Known.Alias
 	}
-	desc := "Banano account " + addr + ": balance " + ban.FormatSmart(ban.Raw(d.Info.Balance)) + " BAN."
+	desc := ban.FormatSmart(ban.Raw(d.Info.Balance)) + " BAN"
+	if d.Opened {
+		desc += " · " + ban.Group(d.Info.BlockCount) + " blocks"
+	}
+	if d.IsKnown {
+		desc += " · " + categoryLabel(d.Known.Category)
+	}
+	desc += " · " + addr
 	s.render(w, r, http.StatusOK, "account", page{Title: title, Description: desc, Data: d, Image: "/og/account/" + addr + ".png"})
 }
 

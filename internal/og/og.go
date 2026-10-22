@@ -88,10 +88,12 @@ func PNG(c Card) ([]byte, error) {
 		text(img, face(fonts.medium, 30), yellow, 72, y-70, c.Kicker, W-144)
 	}
 	text(img, face(fonts.bold, 72), white, 72, y, c.Title, W-144)
-	y += 56
 	if c.Mono != "" {
+		y += 56
 		text(img, face(fonts.mono, 26), grey, 72, y, c.Mono, W-144)
 		y += 70
+	} else {
+		y += 84
 	}
 	if c.Big != "" {
 		text(img, face(fonts.bold, 48), yellow, 72, y, c.Big, W-144)
