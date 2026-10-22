@@ -5,6 +5,7 @@ import (
 	"encoding/csv"
 	"errors"
 	"fmt"
+	"html/template"
 	"net/http"
 	"sort"
 	"strings"
@@ -44,6 +45,7 @@ type dgList struct {
 }
 
 type accountData struct {
+	InsChart             template.HTML
 	DgPending            bool
 	JumpFailed           bool
 	Filter               string // transaction type filter
@@ -263,6 +265,19 @@ func (s *Server) account(w http.ResponseWriter, r *http.Request) {
 			d.Ins = &res
 			if res.Received != nil {
 				d.InsYears, d.InsMax = years(res.Years)
+				if len(res.Daily) >= 2 {
+					var xs []int64
+					var ys []float64
+					for _, p := range res.Daily {
+						xs = append(xs, p.Day)
+						ys = append(ys, p.BAN)
+					}
+					if res.Done { // carry the last balance up to today
+						xs = append(xs, time.Now().Unix())
+						ys = append(ys, ys[len(ys)-1])
+					}
+					d.InsChart = lineChart("Balance over time", " BAN", []Line{{Name: "Balance", Color: "var(--c1)", Step: true, X: xs, Y: ys}})
+				}
 				d.InsNote, d.InsNoteTo = insightNote(s, &res)
 			}
 		}

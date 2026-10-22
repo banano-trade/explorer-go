@@ -13,6 +13,7 @@ type Line struct {
 	Name  string
 	Color string
 	Dash  bool
+	Step  bool    // hold each value until the next point (balances)
 	X     []int64 // unix seconds
 	Y     []float64
 }
@@ -69,6 +70,9 @@ func lineChart(label, unit string, lines []Line) template.HTML {
 	for _, l := range lines {
 		var pts []string
 		for i, x := range l.X {
+			if l.Step && i > 0 {
+				pts = append(pts, fmt.Sprintf("%.1f,%.1f", px(x), py(l.Y[i-1])))
+			}
 			pts = append(pts, fmt.Sprintf("%.1f,%.1f", px(x), py(l.Y[i])))
 		}
 		dash := ""
@@ -154,16 +158,22 @@ func trimZero(s string) string {
 
 func axisTime(ts int64, span time.Duration) string {
 	t := time.Unix(ts, 0).UTC()
-	if span <= 36*time.Hour {
+	switch {
+	case span <= 36*time.Hour:
 		return t.Format("15:04")
+	case span > 300*24*time.Hour:
+		return t.Format("Jan 2006")
 	}
 	return t.Format("2 Jan")
 }
 
 func axisTimeFull(ts int64, span time.Duration) string {
 	t := time.Unix(ts, 0).UTC()
-	if span <= 36*time.Hour {
+	switch {
+	case span <= 36*time.Hour:
 		return t.Format("15:04 UTC")
+	case span > 60*24*time.Hour:
+		return t.Format("2 Jan 2006")
 	}
 	return t.Format("2 Jan, 15:00 UTC")
 }

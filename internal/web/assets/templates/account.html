@@ -121,6 +121,15 @@
         <div><span class="label">Highest balance</span><span class="kv">{{bigBanFrac .MaxBalance}} BAN</span><span class="ks">{{if .MaxBalanceAt}}on {{day .MaxBalanceAt}}{{end}}</span></div>
         <div><span class="label">Active since</span><span class="kv">{{if .First}}{{day .First}}{{else}}–{{end}}</span><span class="ks">{{if .Last}}last seen {{agoI .Last}}{{end}}</span></div>
       </div>
+      {{with $.Data.InsChart}}
+      <div class="stack" style="gap: 10px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 8px">
+          <h2 style="font-size: 18px; font-weight: 600">Balance over time</h2>
+          <span class="hint">End-of-day balance{{if not $.Data.Ins.Done}}, so far{{end}}. Hover for a day's value.</span>
+        </div>
+        {{.}}
+      </div>
+      {{end}}
       <div class="half">
         <div class="stack" style="gap: 10px">
           <h2 style="font-size: 18px; font-weight: 600">Transactions per year</h2>

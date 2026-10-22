@@ -34,6 +34,7 @@ type Result struct {
 	MaxBalanceAt    int64
 	First, Last     int64 // unix seconds
 	Years           map[int]int64
+	Daily           []DayBalance // closing balance per day with activity, oldest first
 	LargestIn       Party
 	LargestOut      Party
 	TopSenders      []Party
@@ -42,6 +43,12 @@ type Result struct {
 	Err             bool // the last run failed; retried on the next view
 	lastHash        string
 	senders, recips map[string]*Party
+}
+
+// DayBalance is an account's balance at the end of a day (unix seconds of the day's start).
+type DayBalance struct {
+	Day int64
+	BAN float64
 }
 
 // Progress is how far along a running job is, 0..100.
@@ -96,6 +103,7 @@ func (e *Engine) Get(addr string) (Result, bool) {
 func (r *Result) copy() Result {
 	c := *r
 	c.Received, c.Sent, c.MaxBalance = new(big.Int).Set(r.Received), new(big.Int).Set(r.Sent), new(big.Int).Set(r.MaxBalance)
+	c.Daily = append([]DayBalance(nil), r.Daily...)
 	c.Years = make(map[int]int64, len(r.Years))
 	for y, n := range r.Years {
 		c.Years[y] = n
@@ -228,6 +236,15 @@ func (r *Result) add(b node.HistoryEntry) {
 		}
 		r.Last = max(r.Last, t)
 		r.Years[time.Unix(t, 0).UTC().Year()]++
+		if b.Balance != "" {
+			day := t - t%86400
+			bal := ban.Float(ban.Raw(b.Balance))
+			if n := len(r.Daily); n > 0 && r.Daily[n-1].Day == day {
+				r.Daily[n-1].BAN = bal
+			} else {
+				r.Daily = append(r.Daily, DayBalance{day, bal})
+			}
+		}
 	}
 	amt := ban.Raw(b.Amount)
 	switch b.Type {

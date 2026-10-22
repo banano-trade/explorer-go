@@ -18,13 +18,15 @@
   {{if .Checks}}
   <section class="stack" style="gap: 14px">
     <h2 style="font-size: 22px; font-weight: 600">The checks</h2>
-    <div class="chkgrid">
+    <div class="card rows">
       {{range .Checks}}
-      <div class="card chk">
+      <div class="chkrow">
         <span class="pill {{levelClass .State}}">{{levelText .State}}</span>
-        <a class="label" href="{{.Link}}">{{.Name}} →</a>
-        <span class="val">{{.Value}}</span>
-        <span class="muted">{{.What}}</span>
+        <span class="stack" style="min-width: 0">
+          <a href="{{.Link}}" style="font-weight: 600; color: var(--ink)">{{.Name}}</a>
+          <span class="muted" style="font-size: 15px">{{.What}}</span>
+        </span>
+        <span class="val mono">{{.Value}}</span>
         <span class="rule">{{.Rule}}</span>
       </div>
       {{end}}

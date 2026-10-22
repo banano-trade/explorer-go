@@ -379,3 +379,13 @@ pre.raw{margin:0;padding:20px 24px;background:#2A2A2E;color:#E4E4E7;font-size:13
   .rr .who,.rs .who,.rl .who,.lb .who,.kr .who{grid-row:1}
   .rr>:first-child,.rs>:first-child,.rl>:first-child,.lb>:first-child{grid-row:1}
 }
+.chkrow{display:grid;grid-template-columns:108px minmax(0,1.4fr) 150px minmax(0,1fr);gap:6px 20px;align-items:center;padding:16px 20px;border-top:1px solid var(--line2)}
+.chkrow:first-child{border-top:0}
+.chkrow .pill{justify-self:start}
+.chkrow .val{font-size:20px;font-weight:600;text-align:right;white-space:nowrap}
+.chkrow .rule{font-size:13px;color:var(--ink4)}
+@media (max-width:760px){
+  .chkrow{grid-template-columns:minmax(0,1fr) auto;padding:14px 16px}
+  .chkrow .pill{grid-column:1 / -1}
+  .chkrow .rule{grid-column:1 / -1}
+}
