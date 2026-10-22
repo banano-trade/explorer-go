@@ -63,6 +63,7 @@ type Feed struct {
 	votes     map[string]*voteSet // recently confirmed block hash -> reps that voted
 	pending   map[string]*voteSet // votes for blocks not (yet) confirmed, kept briefly
 	known     map[string]bool     // hashes in recent
+	listening time.Time           // since when the vote stream has been connected
 }
 
 type voteSet struct {
@@ -139,6 +140,9 @@ func (f *Feed) follow(ctx context.Context) error {
 		return err
 	}
 	f.setConnected(true)
+	f.mu.Lock()
+	f.listening = time.Now() // votes before this (and during any gap) were missed
+	f.mu.Unlock()
 	f.Log.Info("websocket connected", "url", f.URL)
 
 	// The node is quiet when the network is; ping so a dead socket is noticed.
@@ -563,8 +567,13 @@ func (f *Feed) VoteShare() (blocks int, byRep map[string]int) {
 	defer f.mu.RUnlock()
 	byRep = map[string]int{}
 	cut := time.Now().Add(-30 * time.Second).UnixMilli()
+	// Only blocks confirmed while we were listening: we saw all their votes.
+	from := f.listening.Add(10 * time.Second).UnixMilli()
 	for i := len(f.recent) - 1; i >= 0; i-- {
 		c := f.recent[i]
+		if c.Time < from {
+			break
+		}
 		if c.Time > cut {
 			continue
 		}

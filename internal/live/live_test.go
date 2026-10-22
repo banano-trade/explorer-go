@@ -77,6 +77,7 @@ func TestFill(t *testing.T) {
 
 func TestVotes(t *testing.T) {
 	f := New("", "", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	f.listening = time.Now().Add(-time.Hour)
 	rep, hs, ok := parseVote([]byte(`{"topic": "vote", "message": {"account": "ban_r1", "blocks": ["A"], "type": "vote"}}`))
 	if !ok || rep != "ban_r1" || hs[0] != "A" {
 		t.Fatal("parseVote")
@@ -98,6 +99,7 @@ func TestVotes(t *testing.T) {
 
 func TestVotesBeforeConfirmation(t *testing.T) {
 	f := New("", "", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	f.listening = time.Now().Add(-time.Hour)
 	old := time.Now().Add(-time.Minute).UnixMilli()
 	f.addVote("ban_r1", []string{"X", "OLDBLOCK"}) // X not confirmed yet
 	f.add(Confirmation{Hash: "X", Time: old})
@@ -111,5 +113,15 @@ func TestVotesBeforeConfirmation(t *testing.T) {
 	}
 	if n, by := f.VoteShare(); n != 1 || by["ban_r1"] != 1 {
 		t.Fatal("flood wiped real votes", n, by)
+	}
+}
+
+func TestVotesOnlyWhileListening(t *testing.T) {
+	f := New("", "", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	f.listening = time.Now().Add(-2 * time.Minute)
+	f.Seed([]Confirmation{{Hash: "SEEDED", Time: time.Now().Add(-time.Hour).UnixMilli()}})
+	f.addVote("ban_r1", []string{"SEEDED"}) // a replay for a block from before we listened
+	if n, _ := f.VoteShare(); n != 0 {
+		t.Fatal("block from before listening was sampled")
 	}
 }
