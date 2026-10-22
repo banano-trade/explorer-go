@@ -30,6 +30,7 @@ type Confirmation struct {
 	Time       int64  `json:"time"`     // unix ms when our node confirmed it
 	DurationMS int64  `json:"duration"` // election length on our node, 0 if unknown
 	Voters     int    `json:"voters"`
+	Sampled    bool   `json:"sampled,omitempty"` // confirmed while the vote stream was listening
 }
 
 // Hour holds confirm-time stats for one clock hour.
@@ -237,6 +238,7 @@ func (f *Feed) add(c Confirmation) {
 	if f.since.IsZero() {
 		f.since = time.UnixMilli(c.Time)
 	}
+	c.Sampled = f.connected && !f.listening.IsZero() && time.Since(f.listening) > 10*time.Second
 	f.recent = append(f.recent, c)
 	f.known[c.Hash] = true
 	if v := f.pending[c.Hash]; v != nil { // votes that arrived before the confirmation
@@ -443,11 +445,12 @@ func (f *Feed) Subscribers() int {
 }
 
 type snapshot struct {
-	Recent   []Confirmation `json:"recent"`
-	Hours    []Hour         `json:"hours"`
-	Cur      []int64        `json:"cur"`
-	CurStart int64          `json:"cur_start"`
-	Since    time.Time      `json:"since"`
+	Votes    map[string][]string `json:"votes,omitempty"` // sampled block -> reps that voted
+	Recent   []Confirmation      `json:"recent"`
+	Hours    []Hour              `json:"hours"`
+	Cur      []int64             `json:"cur"`
+	CurStart int64               `json:"cur_start"`
+	Since    time.Time           `json:"since"`
 }
 
 func (f *Feed) saveLogged() {
@@ -465,7 +468,15 @@ func (f *Feed) save() error {
 	if len(r) > keepRecent {
 		r = r[len(r)-keepRecent:]
 	}
-	b, err := json.Marshal(snapshot{Recent: r, Hours: f.hours, Cur: f.cur, CurStart: f.curStart, Since: f.since})
+	votes := map[string][]string{}
+	for _, c := range r {
+		if v := f.votes[c.Hash]; c.Sampled && v != nil {
+			for rep := range v.reps {
+				votes[c.Hash] = append(votes[c.Hash], rep)
+			}
+		}
+	}
+	b, err := json.Marshal(snapshot{Votes: votes, Recent: r, Hours: f.hours, Cur: f.cur, CurStart: f.curStart, Since: f.since})
 	f.mu.RUnlock()
 	if err != nil {
 		return err
@@ -492,6 +503,15 @@ func (f *Feed) load() error {
 	f.mu.Lock()
 	f.recent, f.hours, f.cur, f.curStart, f.since = s.Recent, s.Hours, s.Cur, s.CurStart, s.Since
 	f.reindex()
+	for h, reps := range s.Votes {
+		if f.known[h] {
+			v := &voteSet{first: time.Now(), reps: map[string]struct{}{}}
+			for _, r := range reps {
+				v.reps[r] = struct{}{}
+			}
+			f.votes[h] = v
+		}
+	}
 	f.mu.Unlock()
 	return nil
 }
@@ -568,13 +588,9 @@ func (f *Feed) VoteShare() (blocks int, byRep map[string]int) {
 	byRep = map[string]int{}
 	cut := time.Now().Add(-30 * time.Second).UnixMilli()
 	// Only blocks confirmed while we were listening: we saw all their votes.
-	from := f.listening.Add(10 * time.Second).UnixMilli()
 	for i := len(f.recent) - 1; i >= 0; i-- {
 		c := f.recent[i]
-		if c.Time < from {
-			break
-		}
-		if c.Time > cut {
+		if !c.Sampled || c.Time > cut {
 			continue
 		}
 		v := f.votes[c.Hash]

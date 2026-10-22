@@ -49,7 +49,18 @@ type Snapshot struct {
 	Nakamoto      int
 	LatestVersion string
 	VoteBlocks    int // blocks in the vote sample
+
+	// Quorum margin: how much of the online weight actually votes, and how
+	// far that is above the 67% blocks need.
+	VotingPct  float64 // share of online weight held by reps that vote
+	Silent     []*Rep  // principal reps counted online that voted on under half the sampled blocks
+	MarginPct  float64 // VotingPct - 67
+	StallCount int     // fewest voting reps whose going offline drops voting weight below 67%
+	StallReps  []*Rep
 }
+
+// Quorum is the share of online weight needed to confirm a block.
+const Quorum = 67.0
 
 // Namer looks up public names for accounts.
 type Namer func(addr string) string
@@ -259,6 +270,27 @@ func (d *Directory) Refresh(ctx context.Context, record bool) error {
 			break
 		}
 	}
+	// Reps whose votes we sampled and that skipped most blocks don't help reach
+	// quorum even though the node lists them as online. Unknown = assume voting.
+	var voting []*Rep
+	for _, r := range s.Online {
+		if r.Principal && r.VotePct >= 0 && r.VotePct < 50 {
+			s.Silent = append(s.Silent, r)
+			continue
+		}
+		s.VotingPct += r.SharePct
+		voting = append(voting, r)
+	}
+	s.MarginPct = s.VotingPct - Quorum
+	left := s.VotingPct
+	for _, r := range voting { // biggest first
+		if left < Quorum {
+			break
+		}
+		left -= r.SharePct
+		s.StallReps = append(s.StallReps, r)
+	}
+	s.StallCount = len(s.StallReps)
 	for _, r := range s.By {
 		if r.Online || r.Uptime.Tracked {
 			s.Tracked = append(s.Tracked, r)

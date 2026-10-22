@@ -85,6 +85,7 @@ func TestVotes(t *testing.T) {
 	if _, _, ok := parseVote([]byte(sample)); ok {
 		t.Fatal("confirmation parsed as vote")
 	}
+	f.connected = true
 	old := time.Now().Add(-time.Minute).UnixMilli()
 	f.add(Confirmation{Hash: "A", Time: old})
 	f.add(Confirmation{Hash: "B", Time: old})
@@ -100,6 +101,7 @@ func TestVotes(t *testing.T) {
 func TestVotesBeforeConfirmation(t *testing.T) {
 	f := New("", "", slog.New(slog.NewTextHandler(io.Discard, nil)))
 	f.listening = time.Now().Add(-time.Hour)
+	f.connected = true
 	old := time.Now().Add(-time.Minute).UnixMilli()
 	f.addVote("ban_r1", []string{"X", "OLDBLOCK"}) // X not confirmed yet
 	f.add(Confirmation{Hash: "X", Time: old})
@@ -123,5 +125,21 @@ func TestVotesOnlyWhileListening(t *testing.T) {
 	f.addVote("ban_r1", []string{"SEEDED"}) // a replay for a block from before we listened
 	if n, _ := f.VoteShare(); n != 0 {
 		t.Fatal("block from before listening was sampled")
+	}
+}
+
+func TestVotesSurviveRestart(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "live.json")
+	log := slog.New(slog.NewTextHandler(io.Discard, nil))
+	f := New("", path, log)
+	f.connected, f.listening = true, time.Now().Add(-time.Hour)
+	f.add(Confirmation{Hash: "A", Time: time.Now().Add(-time.Minute).UnixMilli()})
+	f.addVote("ban_r1", []string{"A"})
+	if err := f.save(); err != nil {
+		t.Fatal(err)
+	}
+	g := New("", path, log)
+	if n, by := g.VoteShare(); n != 1 || by["ban_r1"] != 1 {
+		t.Fatal("votes lost on restart", n, by)
 	}
 }

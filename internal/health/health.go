@@ -73,6 +73,16 @@ type Inputs struct {
 	Peers           int
 	LatestVersion   string
 	OnLatest        float64 // share of official peers on LatestVersion
+	Margin          *Margin // nil until rep votes have been sampled
+}
+
+// Margin is how far the actually-voting weight is above the 67% quorum.
+type Margin struct {
+	VotingPct  float64 // share of online weight held by reps that vote
+	Points     float64 // VotingPct - 67
+	StallCount int     // fewest reps whose going offline drops voting below 67%
+	StallNames string
+	Silent     string // online reps that barely vote, if any
 }
 
 const (
@@ -164,6 +174,29 @@ func evaluate(in Inputs) Report {
 	c = Check{ID: "unchecked", Name: "Unchecked blocks", Link: "/network", Value: ban.Group(strconv.FormatInt(in.Unchecked, 10)), What: "blocks our node can't place yet", Rule: "Warns above 1,000."}
 	if in.Unchecked > 1000 {
 		c.Level = Warn
+	}
+	add(c)
+
+	c = Check{ID: "quorum_margin", Name: "Quorum margin", Link: "/representatives", Rule: "Warns when one representative going offline would stall confirmations; a note when two or three would."}
+	if m := in.Margin; m == nil {
+		c.Value, c.What = "–", "still sampling which representatives vote"
+	} else {
+		c.Value = fmt.Sprintf("%+.1f pts", m.Points)
+		c.What = fmt.Sprintf("%.1f%% of online weight votes, 67%% is needed", m.VotingPct)
+		if m.Silent != "" {
+			c.What += "; " + m.Silent + " barely voted"
+		}
+		switch {
+		case m.Points < 0:
+			c.Level = Warn
+			c.What = fmt.Sprintf("only %.1f%% of online weight voted recently, below the 67%% needed", m.VotingPct)
+		case m.StallCount <= 1:
+			c.Level = Warn
+			c.Rule = fmt.Sprintf("%s alone going offline would stall confirmations.", m.StallNames)
+		case m.StallCount <= 3:
+			c.Level = Note
+			c.Rule = fmt.Sprintf("%s going offline together would stall confirmations.", m.StallNames)
+		}
 	}
 	add(c)
 
@@ -268,6 +301,8 @@ type Checker struct {
 	Live     *live.Feed // may be nil
 	Log      *slog.Logger
 	Interval time.Duration
+	// QuorumMargin, when set, reports the vote-based margin (from the rep directory).
+	QuorumMargin func() *Margin
 
 	mu           sync.RWMutex
 	last         Report
@@ -369,6 +404,9 @@ func (c *Checker) Once(ctx context.Context) Report {
 		if official > 0 {
 			in.LatestVersion, in.OnLatest = best, float64(versions[best])/float64(official)
 		}
+	}
+	if c.QuorumMargin != nil {
+		in.Margin = c.QuorumMargin()
 	}
 	r := evaluate(in)
 	c.store(r)

@@ -126,6 +126,30 @@ func main() {
 	srv.BNS = &bns.Resolver{Node: bg, Log: log}
 	go srv.BNS.Run(ctx)
 	srv.Health = health.NewChecker(bg, srv.Live, log)
+	srv.Health.QuorumMargin = func() *health.Margin {
+		snap := srv.Reps.Snapshot()
+		if snap == nil || snap.VoteBlocks < 20 {
+			return nil
+		}
+		names := func(l []*reps.Rep) string {
+			var n []string
+			for _, r := range l {
+				if r.Name != "" {
+					n = append(n, r.Name)
+				} else {
+					n = append(n, r.Account[:12]+"…")
+				}
+			}
+			switch len(n) {
+			case 0:
+				return ""
+			case 1:
+				return n[0]
+			}
+			return strings.Join(n[:len(n)-1], ", ") + " and " + n[len(n)-1]
+		}
+		return &health.Margin{VotingPct: snap.VotingPct, Points: snap.MarginPct, StallCount: snap.StallCount, StallNames: names(snap.StallReps), Silent: names(snap.Silent)}
+	}
 	go srv.Health.Run(ctx)
 	hs := &http.Server{Addr: *listen, Handler: srv.Handler(), ReadHeaderTimeout: 10 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 60 * time.Second, IdleTimeout: 120 * time.Second, MaxHeaderBytes: 16 << 10,
 		BaseContext: func(net.Listener) context.Context { return ctx }} // ends live streams on shutdown

@@ -23,7 +23,7 @@ func TestAllGood(t *testing.T) {
 	if !r.Good || r.Headline != "We good, fam." {
 		t.Fatalf("%+v", r)
 	}
-	if len(r.Checks) != 10 {
+	if len(r.Checks) != 11 {
 		t.Fatalf("%d checks", len(r.Checks))
 	}
 	// Nakamoto 6-ish and stall risk 2 are notes, not problems.
@@ -70,5 +70,18 @@ func TestQuorumAndSpeed(t *testing.T) {
 func TestNewer(t *testing.T) {
 	if !newer("26.1", "25.9") || newer("25.10", "26.0") || !newer("25.10", "25.9") {
 		t.Fatal("version compare")
+	}
+}
+
+func TestQuorumMargin(t *testing.T) {
+	in := base(time.Now())
+	in.Margin = &Margin{VotingPct: 90, Points: 23, StallCount: 2, StallNames: "Kalium and Genesis"}
+	r := evaluate(in)
+	if !r.Good || len(r.Notes) != 3 {
+		t.Fatalf("two-rep stall should be a note: %+v", r.Notes)
+	}
+	in.Margin = &Margin{VotingPct: 80, Points: 13, StallCount: 1, StallNames: "Kalium"}
+	if r := evaluate(in); !r.Good || r.Headline != "We good, mostly." {
+		t.Fatalf("one-rep stall should warn, not bork: %s", r.Headline)
 	}
 }

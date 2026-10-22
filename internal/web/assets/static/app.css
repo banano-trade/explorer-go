@@ -390,3 +390,7 @@ pre.raw{margin:0;padding:20px 24px;background:#2A2A2E;color:#E4E4E7;font-size:13
   .chkrow .rule{grid-column:1 / -1}
 }
 .bnspill{background:var(--in-bg);color:var(--in)}.bnspill:hover{text-decoration:none;color:var(--in)}
+.margin{border-radius:12px;padding:14px 16px;background:var(--in-bg);display:flex;flex-direction:column;gap:6px;color:var(--ink)}
+.margin.warn{background:var(--amber-bg)}.margin.bad{background:var(--out-bg)}
+.marginhead{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.marginval{font-size:22px;font-weight:700}

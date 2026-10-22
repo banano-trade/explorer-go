@@ -31,6 +31,16 @@
       {{range .Segments}}<span class="key"><i style="background: {{.Color}}"></i>{{.Name}} {{f1 .Pct}}%</span>{{end}}
     </div>
     <p style="margin: 0; font-size: 15px" class="muted">The {{.Nakamoto}} largest representatives together pass the 67% line.{{range .Groups}} {{.}}{{end}}</p>
+    {{if ge .VoteBlocks 20}}
+    <div class="margin{{if lt .MarginPct 0.0}} bad{{else if le .StallCount 1}} warn{{end}}">
+      <div class="marginhead"><span class="label">Quorum margin</span><span class="marginval">{{if ge .MarginPct 0.0}}+{{end}}{{f1 .MarginPct}} points</span></div>
+      <p style="margin: 0">Representatives holding <b>{{f1 .VotingPct}}%</b> of online weight voted on recent blocks; a block needs 67%.
+      {{if lt .MarginPct 0.0}}That's below the line: confirmations depend on votes from reps that have been quiet.
+      {{else if eq .StallCount 1}}{{with index .StallReps 0}}If <b>{{repName .}}</b> ({{f1 .SharePct}}%) alone went offline, confirmations would stall.{{end}}
+      {{else}}It would take the {{.StallCount}} biggest voting reps ({{range $i, $r := .StallReps}}{{if $i}}, {{end}}{{repName $r}}{{end}}) going offline at once to stall confirmations.{{end}}
+      {{if .Silent}}<span class="muted">Counted online but voted on few recent blocks: {{range $i, $r := .Silent}}{{if $i}}, {{end}}<a href="/rep/{{$r.Account}}">{{repName $r}}</a>{{end}}.</span>{{end}}</p>
+    </div>
+    {{end}}
   </section>
 
   <section class="card rows">
