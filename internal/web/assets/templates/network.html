@@ -1,0 +1,106 @@
+{{define "content"}}{{with .Data}}
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <section class="stack" style="gap: 6px">
+    <h1 class="ptitle">Network</h1>
+    <p class="lead">Supply, voting weight and the health of the Banano network, as seen by our node at <time data-ts="{{.At.Unix}}">{{whenI .At.Unix}}</time>.</p>
+  </section>
+
+  <section class="two2">
+    <div class="card" style="padding: 24px; display: flex; gap: 20px; align-items: center">
+      <span class="big">{{.Nakamoto}}</span>
+      <div class="stack" style="gap: 4px">
+        <h2 style="font-size: 19px; font-weight: 600">Nakamoto coefficient</h2>
+        <p style="margin: 0" class="muted">The {{.Nakamoto}} largest representatives hold more than 67% of online weight, enough to confirm blocks on their own.</p>
+        <a href="/representatives" style="font-weight: 500">See representatives</a>
+      </div>
+    </div>
+    <div class="card" style="padding: 24px; display: flex; gap: 20px; align-items: center">
+      <span class="big">{{.Stall}}</span>
+      <div class="stack" style="gap: 4px">
+        <h2 style="font-size: 19px; font-weight: 600">Quorum coefficient</h2>
+        <p style="margin: 0" class="muted">{{.StallNames}} hold more than 33% of online weight, enough to stall confirmations by going offline.</p>
+        <a href="/health" style="font-weight: 500">See WeGoodFam™ checks</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" id="speed" style="padding: 24px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+      <h2 style="font-size: 20px; font-weight: 600">Confirmation speed</h2>
+      <span class="spacer"></span>
+      <span class="chips">{{range $k := rangeKeys}}<a class="chip{{if eq $.Data.Speed $k}} chip-on{{end}}" aria-pressed="{{eq $.Data.Speed $k}}" href="?speed={{$k}}&amp;range={{$.Data.ChartRange}}&amp;chart={{$.Data.Chart}}#speed">{{upper $k}}</a>{{end}}</span>
+    </div>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 12px">
+      <div class="stack"><span class="label">Median</span><span style="font-size: 40px; font-weight: 700; line-height: 1.1; color: var(--jungle)">{{if .SpeedMedian}}{{.SpeedMedian}} ms{{else}}–{{end}}</span><span style="font-size: 14px" class="faint">from block seen to quorum</span></div>
+      {{if .SpeedAvg}}<div class="stack"><span class="label">Average</span><span style="font-size: 28px; font-weight: 600">{{.SpeedAvg}} ms</span></div>{{end}}
+      <div class="stack"><span class="label">95% within</span><span style="font-size: 28px; font-weight: 600">{{if .SpeedP95}}{{.SpeedP95}} ms{{else}}–{{end}}</span></div>
+      {{if .Voters}}<div class="stack"><span class="label">Voters per block</span><span style="font-size: 28px; font-weight: 600">~{{.Voters}}</span></div>{{end}}
+    </div>
+    {{.SpeedChart}}
+    <p style="margin: 0; font-size: 14px" class="muted">Measured by our node, hourly median and 95th percentile. <a href="/blocks" style="font-weight: 500">See each block's time</a></p>
+  </section>
+
+  <section class="card" id="history" style="padding: 24px; display: flex; flex-direction: column; gap: 16px">
+    <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center">
+      <h2 style="font-size: 20px; font-weight: 600">History</h2>
+      <span class="spacer"></span>
+      <span class="chips">{{range $k := rangeKeys}}<a class="chip{{if eq $.Data.ChartRange $k}} chip-on{{end}}" aria-pressed="{{eq $.Data.ChartRange $k}}" href="?range={{$k}}&amp;chart={{$.Data.Chart}}&amp;speed={{$.Data.Speed}}#history">{{upper $k}}</a>{{end}}</span>
+    </div>
+    <div role="tablist" aria-label="Chart" class="tabs" style="padding: 0">
+      {{range .Charts}}<a role="tab" aria-selected="{{eq $.Data.Chart .Key}}" class="tab" href="?chart={{.Key}}&amp;range={{$.Data.ChartRange}}&amp;speed={{$.Data.Speed}}#history">{{.Name}}</a>{{end}}
+    </div>
+    {{.HistoryChart}}
+  </section>
+
+  <section class="two2">
+    <div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px">
+      <h2 style="font-size: 20px; font-weight: 600">Supply</h2>
+      <div class="stackbar" role="img" aria-label="{{range $i, $r := .Supply}}{{if $i}}, {{end}}{{$r.Name}} {{f1 $r.Pct}}%{{end}}">{{range .Supply}}<div style="width: {{f2 .Pct}}%; background: {{.Color}}"></div>{{end}}</div>
+      <table class="t">
+        <thead><tr><th scope="col">Part</th><th scope="col" class="num">BAN</th><th scope="col" class="num">Share</th></tr></thead>
+        <tbody>
+          {{range .Supply}}<tr><td><span class="sw" style="background: {{.Color}}"></span>{{.Name}}</td><td class="num">{{bigBan .Raw}}</td><td class="num">{{f1 .Pct}}%</td></tr>{{end}}
+          <tr><td style="font-weight: 600">Total supply</td><td class="num" style="font-weight: 600">{{bigBan .Total}}</td><td class="num">100%</td></tr>
+        </tbody>
+      </table>
+      <p style="margin: 0" class="muted"><span class="mono" style="color: var(--ink); font-weight: 600">{{bigBan .Burned}}</span> BAN has been burned. <a href="/burn" style="font-weight: 500">See the burn leaderboard</a></p>
+    </div>
+
+    {{if .Weight}}
+    <div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px">
+      <h2 style="font-size: 20px; font-weight: 600">Voting weight</h2>
+      <div class="stackbar" role="img" aria-label="{{range $i, $r := .Weight}}{{if $i}}, {{end}}{{$r.Name}} {{f1 $r.Pct}}%{{end}}">{{range .Weight}}<div style="width: {{f2 .Pct}}%; background: {{.Color}}"></div>{{end}}</div>
+      <table class="t">
+        <thead><tr><th scope="col">Delegated to</th><th scope="col" class="num">BAN</th><th scope="col" class="num">Share</th></tr></thead>
+        <tbody>{{range .Weight}}<tr><td><span class="sw" style="background: {{.Color}}"></span>{{.Name}}</td><td class="num">{{bigBan .Raw}}</td><td class="num">{{f1 .Pct}}%</td></tr>{{end}}</tbody>
+      </table>
+      <p style="margin: 0" class="muted">Weight on offline reps doesn't count toward quorum.</p>
+    </div>
+    {{end}}
+
+    {{if .OnlineWeight}}
+    <div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 16px">
+      <h2 style="font-size: 20px; font-weight: 600">Quorum</h2>
+      <table class="t"><tbody>
+        <tr><td>Online weight</td><td class="num">{{bigBan .OnlineWeight}} BAN</td></tr>
+        <tr><td>Votes needed</td><td class="num">{{.QuorumPct}}%</td></tr>
+        <tr><td>Quorum delta (node)</td><td class="num">{{bigBan .QuorumDelta}} BAN</td></tr>
+        <tr><td>Minimum online weight</td><td class="num">{{bigBan .Minimum}} BAN</td></tr>
+      </tbody></table>
+    </div>
+    {{end}}
+
+    {{if .Versions}}
+    <div class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap">
+        <h2 style="font-size: 20px; font-weight: 600">Node versions</h2>
+        <span style="font-size: 14px" class="faint">{{.Reporting}} peers reporting</span>
+      </div>
+      {{range .Versions}}
+      <div class="vrow"><span class="mono">{{.Name}}</span><span class="track"><span style="width: {{f1 .Pct}}%; background: var(--jungle)"></span></span><span class="num">{{.N}}</span></div>
+      {{end}}
+    </div>
+    {{end}}
+  </section>
+</main>
+{{end}}{{end}}

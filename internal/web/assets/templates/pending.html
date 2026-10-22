@@ -1,0 +1,9 @@
+{{define "content"}}{{with .Data}}
+<main class="wrap" style="padding-top: 40px; padding-bottom: 64px; max-width: 880px">
+  <section class="card empty">
+    <h1 style="font-size: 26px; line-height: 1.2">Still counting {{.What}}</h1>
+    <p style="margin: 0">{{.Why}}</p>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px"><a class="btn" href="">Try again</a><a class="btn2" href="/">Go home</a></div>
+  </section>
+</main>
+{{end}}{{end}}

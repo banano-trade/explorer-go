@@ -1,0 +1,53 @@
+{{define "content"}}{{with .Data}}
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <section class="stack" style="gap: 6px">
+    <h1 class="ptitle">Latest blocks</h1>
+    <p class="lead">Every block confirmed on the network, newest first, with how long its vote took on our node.</p>
+  </section>
+
+  <section class="stats">
+    {{if .Blocks}}<div class="card stat"><span class="label">Blocks</span><span class="v">{{.Blocks}}</span><span class="s">all time</span></div>{{end}}
+    {{if .Stats.Count}}
+    <div class="card stat"><span class="label">Median confirm time</span><span class="v">{{.Stats.Median}} ms</span><span class="s">last hour, {{group .Stats.Count}} blocks</span></div>
+    <div class="card stat"><span class="label">95% confirm within</span><span class="v">{{.Stats.P95}} ms</span><span class="s">slowest {{group .Stats.Max}} ms</span></div>
+    <div class="card stat"><span class="label">Voters per block</span><span class="v">~{{.Stats.Voters}}</span><span class="s">representatives</span></div>
+    {{end}}
+  </section>
+
+  <section class="card rows">
+    <div class="toolbar">
+      <span style="display: flex; align-items: center; gap: 10px"><span class="livedot{{if not .Live}} off{{end}}" data-livedot></span><span style="font-weight: 600" data-livetext>{{if .Live}}Live{{else}}Reconnecting{{end}}</span></span>
+      <span class="chips">
+        <a class="chip{{if eq .F.Type ""}} chip-on{{end}}" href="{{.F.With "type" ""}}" aria-pressed="{{eq .F.Type ""}}">All</a>
+        <a class="chip{{if eq .F.Type "send"}} chip-on{{end}}" href="{{.F.With "type" "send"}}" aria-pressed="{{eq .F.Type "send"}}">Send</a>
+        <a class="chip{{if eq .F.Type "receive"}} chip-on{{end}}" href="{{.F.With "type" "receive"}}" aria-pressed="{{eq .F.Type "receive"}}">Receive</a>
+        <a class="chip{{if eq .F.Type "change"}} chip-on{{end}}" href="{{.F.With "type" "change"}}" aria-pressed="{{eq .F.Type "change"}}">Change</a>
+      </span>
+      <span class="spacer"></span>
+      <a class="chip{{if not .F.Small}} chip-on{{end}}" href="{{if .F.Small}}{{.F.With "small" ""}}{{else}}{{.F.With "small" "1"}}{{end}}" aria-pressed="{{not .F.Small}}">Hide under 0.1 BAN</a>
+      <a class="chip{{if .F.Whale}} chip-on{{end}}" href="{{if .F.Whale}}{{.F.With "whale" ""}}{{else}}{{.F.With "whale" "1"}}{{end}}" aria-pressed="{{.F.Whale}}">Whales only (100K+)</a>
+      <button type="button" class="chip" data-pause hidden>Pause</button>
+    </div>
+    <div class="row bl head"><span>Type</span><span>Account</span><span class="r">Amount (BAN)</span><span>Confirmed in</span><span class="r">Age</span><span>Block</span></div>
+    <div data-live="/api/live{{.F.Query}}">
+    {{range .Rows}}{{template "blrow" .}}{{else}}
+    <div class="row" data-empty><span class="muted">Nothing matching yet. New blocks appear here as they confirm.</span></div>
+    {{end}}
+    </div>
+    <div class="listfoot"><span>New blocks slide in at the top. Confirm times over 250 ms show in amber.</span></div>
+  </section>
+</main>
+<template id="blrow">{{template "blrow" sampleRow}}</template>
+{{end}}{{end}}
+
+{{define "blrow"}}
+<div class="row bl rowlink">
+  <a class="stretch" href="/block/{{.Hash}}" aria-label="Open block {{shortHash .Hash}}" data-f="href"></a>
+  <span class="c1"><span class="pill {{typeClass .Type}}" data-f="type">{{title .Type}}</span></span>
+  <a class="who" href="/account/{{.Account}}" data-f="who"><b data-f="name">{{.Name}}</b> <span class="mono muted" style="font-size: 13px" data-f="short">{{.Short}}</span></a>
+  <span class="mono r c2" style="font-weight: 600" data-f="amount">{{.Amount}}</span>
+  <span class="sp hide-sm{{if .Slow}} slow{{end}}" data-f="sp">{{if .DurationMS}}<i style="width: {{msWidth .DurationMS}}px" data-f="bar"></i><span class="mono" style="font-size: 13px" data-f="ms">{{.DurationMS}} ms</span>{{else}}<span class="faint" title="Confirmed without a vote on our node">—</span>{{end}}</span>
+  <span class="r muted c3" style="font-size: 14px" data-ago="{{.Time}}" data-f="age">{{agoI .Time}}</span>
+  <a class="mono hide-sm" href="/block/{{.Hash}}" style="font-size: 13px" data-f="hash">{{shortHash .Hash}}</a>
+</div>
+{{end}}

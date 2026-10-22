@@ -1,0 +1,88 @@
+{{define "content"}}{{with .Data}}
+<section class="hero">
+  <div class="wrap stack" style="padding-top: 48px; padding-bottom: 48px; gap: 16px">
+    <span style="font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--yellow)">Rep score</span>
+    <h1 style="font-size: 48px; line-height: 1.05">Pick a good representative</h1>
+    <p style="max-width: 760px">Your BAN votes through the rep you choose. A good rep is always online, actually votes, runs an up-to-date node, and isn't already too big. Every rep gets a grade from A to D.</p>
+    <form action="/delegate/check" style="display: flex; gap: 10px; flex-wrap: wrap; max-width: 860px" autocomplete="off">
+      <label for="mine" class="sr">Your address or your rep's address</label>
+      <input id="mine" name="addr" type="search" placeholder="Paste your ban_ address to grade your rep" class="mono" style="height: 52px; font-size: 15px" required>
+      <button class="btn" type="submit" style="height: 52px">Check my rep</button>
+    </form>
+  </div>
+</section>
+
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 32px">
+  <section class="stack" style="gap: 14px">
+    <h2 style="font-size: 22px; font-weight: 600">How the score works</h2>
+    <div class="parts">
+      <div class="card part"><span class="pts">35</span><span style="font-weight: 600; font-size: 17px">Always online</span><span class="muted">Uptime over the last 30 days. Full points at 99.9%, none below 90%.</span></div>
+      <div class="card part"><span class="pts">25</span><span style="font-weight: 600; font-size: 17px">Actually votes</span><span class="muted">Share of recent blocks it voted on. Reps too small to broadcast votes get a neutral 15.</span></div>
+      <div class="card part"><span class="pts">25</span><span style="font-weight: 600; font-size: 17px">Not too big</span><span class="muted">Full points under 1% of online weight, none at 10% or more. Minus 8 if it shares a server with other reps.</span></div>
+      <div class="card part"><span class="pts">15</span><span style="font-weight: 600; font-size: 17px">Healthy node</span><span class="muted">Runs the latest node version and keeps up with the network.</span></div>
+    </div>
+    <div style="display: flex; flex-wrap: wrap; gap: 8px 20px; font-size: 15px">
+      <span><span class="g gA">A</span> 85+ Great pick</span>
+      <span><span class="g gB">B</span> 70+ Good</span>
+      <span><span class="g gC">C</span> 50+ Think twice</span>
+      <span><span class="g gD">D</span> below 50, avoid</span>
+      <span><span class="g gOff">OFF</span> offline now</span>
+    </div>
+  </section>
+
+  {{if .Picks}}
+  <section class="stack" style="gap: 14px">
+    <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px">
+      <h2 style="font-size: 22px; font-weight: 600">Great picks right now</h2>
+      <span class="muted">Grade A, under 1% of weight, so your BAN spreads the power</span>
+    </div>
+    <div class="picks">
+      {{range .Picks}}
+      <div class="card pick">
+        <div style="display: flex; align-items: center; gap: 12px">
+          <span class="g gA" style="width: 44px; height: 44px; font-size: 20px">A</span>
+          <div class="stack" style="min-width: 0">
+            <a href="/rep/{{.Account}}" style="font-weight: 600; font-size: 17px; color: var(--ink)">{{repName .}}</a>
+            <span class="mono muted" style="font-size: 13px">{{short .Account}}</span>
+          </div>
+          <span style="margin-left: auto; font-size: 28px; font-weight: 700; color: var(--jungle)">{{.Score.Points}}</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 14px; color: var(--ink2)">
+          {{if ge .Uptime.Month 0.0}}<span>{{f2 .Uptime.Month}}% uptime</span>{{end}}<span>{{f2 .SharePct}}% of weight</span>{{if .Version}}<span>V{{.Version}}</span>{{end}}
+        </div>
+        <button type="button" class="btn2" style="height: 40px" data-copy="{{.Account}}">Copy address to delegate</button>
+      </div>
+      {{end}}
+    </div>
+    <p style="margin: 0; font-size: 14px" class="muted">To switch, paste the address into your wallet's "change representative" setting. Your BAN never leaves your wallet.</p>
+  </section>
+  {{end}}
+
+  <section class="card rows">
+    <div class="toolbar">
+      <h2 style="font-size: 20px; font-weight: 600">All representatives by score</h2>
+      <span class="spacer"></span>
+      <span class="chips">
+        <a class="chip{{if eq .Filter ""}} chip-on{{end}}" href="/delegate" aria-pressed="{{eq .Filter ""}}">All</a>
+        <a class="chip{{if eq .Filter "a"}} chip-on{{end}}" href="/delegate?grade=a" aria-pressed="{{eq .Filter "a"}}">A only</a>
+        <a class="chip{{if eq .Filter "avoid"}} chip-on{{end}}" href="/delegate?grade=avoid" aria-pressed="{{eq .Filter "avoid"}}">Avoid</a>
+      </span>
+    </div>
+    <div class="row rs head"><span>Grade</span><span>Representative</span><span>Score</span><span class="r">Uptime 30 d</span><span class="r">Votes</span><span class="r">Weight</span><span>Why</span></div>
+    {{range .Rows}}
+    <div class="row rs">
+      <a href="/rep/{{.Account}}" aria-label="Grade {{.Score.Grade}}"><span class="g {{gradeClass .Score.Grade}}">{{gradeLabel .Score.Grade}}</span></a>
+      <a class="who stackname" href="/rep/{{.Account}}">{{if .Name}}<b>{{.Name}}</b><span class="mono faint" style="font-size: 13px">{{short .Account}}</span>{{else}}<b class="mono" style="font-weight: 500">{{short .Account}}</b>{{end}}</a>
+      <span class="sc scbar"><i style="width: {{.Score.Points}}%; background: {{partColor .Score.Points 100}}"></i><span class="mono" style="font-weight: 600">{{.Score.Points}}</span></span>
+      <span class="mono r up">{{if ge .Uptime.Month 0.0}}{{f2 .Uptime.Month}}%{{else}}–{{end}}</span>
+      <span class="mono r vo">{{if ge .VotePct 0.0}}{{printf "%.0f" .VotePct}}%{{else}}–{{end}}</span>
+      <span class="mono r wt">{{f2 .SharePct}}%</span>
+      <span class="nt muted" style="font-size: 14px">{{weakest .}}</span>
+    </div>
+    {{else}}
+    <div class="empty"><p class="muted" style="margin: 0">No reps match.</p></div>
+    {{end}}
+    <div class="listfoot"><span>{{len .Rows}} reps. Uptime from our checks every minute; votes from our node's vote stream ({{group .Snap.VoteBlocks}} recent blocks); version and sync from node telemetry. Scored <time data-ts="{{.Snap.At.Unix}}">{{whenI .Snap.At.Unix}}</time>.</span></div>
+  </section>
+</main>
+{{end}}{{end}}

@@ -1,0 +1,63 @@
+{{define "content"}}{{with .Data}}
+<section class="hero" style="background: #212124">
+  <div class="wrap" style="padding-top: 48px; padding-bottom: 48px; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-end">
+    <div class="stack" style="flex: 999 1 520px; min-width: 0; gap: 10px">
+      <span style="font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--yellow)">Burned forever</span>
+      <h1 class="bighero">{{bigBan .Scan.Burned}} <span>BAN</span></h1>
+      <p style="color: #E4E4E7">That's {{f1 .BurnedPct}}% of the original 3.40 billion. The burn address has no private key, so nothing sent there can ever move again.</p>
+      <div class="stackbar" style="margin-top: 8px; max-width: 640px" role="img" aria-label="{{f1 .BurnedPct}}% burned">
+        <div style="width: {{f2 .BurnedPct}}%; background: #FBDD11"></div><div style="flex: 1; background: #4CBF4B"></div>
+      </div>
+      <div style="display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 14px; color: #D4D4D8">
+        <span><span class="sw" style="background: #FBDD11"></span>Burned {{f1 .BurnedPct}}%</span>
+        <span><span class="sw" style="background: #4CBF4B"></span>Total supply left {{bigBan .Left}}</span>
+      </div>
+    </div>
+    <div class="burnaddr">
+      <div class="qrbox">{{.QR}}</div>
+      <div class="stack" style="gap: 8px; min-width: 0">
+        <span class="label" style="color: #D4D4D8">Burn address</span>
+        <span class="mono" style="font-size: 13px; color: #FFFFFF; overflow-wrap: anywhere; word-break: break-all">{{.Addr}}</span>
+        <button type="button" class="btn" style="align-self: flex-start; height: 40px; padding: 0 16px" data-copy="{{.Addr}}">Copy</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <section class="stats">
+    <div class="card stat"><span class="label">Community burners</span><span class="v">{{group .CommN}}</span><span class="s">people and services</span></div>
+    <div class="card stat"><span class="label">Community burned</span><span class="v">{{bigBan .CommRaw}} BAN</span><span class="s">{{f2 .CommPct}}% of all burns</span></div>
+    <div class="card stat"><span class="label">Team burned</span><span class="v">{{shortBan .TeamRaw}} BAN</span><span class="s">from {{.TeamN}} Banano-owned addresses</span></div>
+  </section>
+
+  <section class="card rows">
+    <div class="toolbar">
+      <h2 style="font-size: 20px; font-weight: 600">Top burners</h2>
+      <span class="spacer"></span>
+      <span class="chips">
+        <a class="chip{{if eq .Who "community"}} chip-on{{end}}" aria-pressed="{{eq .Who "community"}}" href="/burn">Community</a>
+        <a class="chip{{if eq .Who "team"}} chip-on{{end}}" aria-pressed="{{eq .Who "team"}}" href="/burn?who=team">Team</a>
+        <a class="chip{{if eq .Who "all"}} chip-on{{end}}" aria-pressed="{{eq .Who "all"}}" href="/burn?who=all">Everyone</a>
+      </span>
+    </div>
+    <div class="row lb head"><span>#</span><span>Burner</span><span class="r">Burned (BAN)</span><span class="r">Burns</span><span>Share of {{if eq .Who "community"}}community{{else if eq .Who "team"}}team{{else}}all burns{{end}}</span></div>
+    {{range $i, $r := .Rows}}
+    <div class="row lb rowlink">
+      <a class="stretch" href="/account/{{$r.Account}}" aria-label="Open {{if $r.Name}}{{$r.Name}}{{else}}{{short $r.Account}}{{end}}"></a>
+      <span><span class="rank{{if eq $i 0}} r1{{end}}">{{add $i 1}}</span></span>
+      <a class="who stackname" href="/account/{{$r.Account}}">{{if $r.Name}}<b>{{$r.Name}}</b><span class="mono muted" style="font-size: 13px">{{short $r.Account}}</span>{{else}}<span class="mono">{{short $r.Account}}</span>{{end}}</a>
+      <span class="mono r amt" style="font-weight: 600">{{bigBan $r.Amount}}</span>
+      <span class="mono r cnt muted">{{group $r.Burns}}</span>
+      <span class="bar"><span class="track"><span style="width: {{f1 (minf $r.Share 100.0)}}%; background: var(--jungle)"></span></span><span class="mono muted" style="font-size: 13px; width: 56px; text-align: right">{{f1 $r.Share}}%</span></span>
+    </div>
+    {{end}}
+    <div class="listfoot"><span>Showing {{len .Rows}} of {{group .Shown}}{{if and (eq .Limit 25) (gt .Shown 25)}} · <a href="?who={{.Who}}&amp;n=100">Show top 100</a>{{end}}</span></div>
+  </section>
+
+  <section class="card" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 6px">
+    <h2 style="font-size: 18px; font-weight: 600">How burns are counted</h2>
+    <p style="margin: 0; color: var(--ink2); max-width: 860px">A burn is a send to a burn address. Nobody can ever receive it, so each burn stays as a receivable block forever. The total is the sum of those receivable blocks ({{group .Scan.BurnCount}} of them), counted straight from our node every hour. Sends from Banano-owned accounts in the known-accounts list count as team burns.</p>
+  </section>
+</main>
+{{end}}{{end}}

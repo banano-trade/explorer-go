@@ -1,0 +1,198 @@
+{{define "content"}}{{with .Data}}
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <section class="card" style="padding: 28px; display: flex; flex-wrap: wrap; gap: 28px">
+    <div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 14px">
+      <div style="display: flex; gap: 18px; align-items: center">
+        <img class="av" src="{{monkey .Address}}" alt="" width="80" height="80" loading="lazy">
+        <div class="stack" style="gap: 6px; min-width: 0">
+          <h1 style="font-size: 32px; line-height: 1.1" data-label-for="{{.Address}}">{{if .IsKnown}}{{.Known.Alias}}{{else}}{{short .Address}}{{end}}</h1>
+          <div style="display: flex; flex-wrap: wrap; gap: 6px">
+            {{if .IsKnown}}<span class="pill amber">{{catLabel .Known.Category}}</span>{{end}}
+            {{if .IsRep}}<span class="pill chg">{{group .DgCount}} delegators</span>{{end}}
+            {{if not .Opened}}<span class="pill chg">Not opened yet</span>{{end}}
+            {{if gt .Unconfirmed 0}}<span class="pill amber">{{.Unconfirmed}} unconfirmed</span>{{end}}
+          </div>
+        </div>
+      </div>
+      <div class="addr" style="font-size: 15px">{{addrHTML .Address}}</div>
+      <div style="display: flex; gap: 8px">
+        <button type="button" class="ib" aria-label="Copy address" data-copy="{{.Address}}" data-main><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+        <a class="ib" href="/qr/{{.Address}}.svg" aria-label="Show QR code" data-open="qr"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg></a>
+        <button type="button" class="ib js" aria-label="Share" data-share="/account/{{.Address}}" data-title="{{if .IsKnown}}{{.Known.Alias}}{{else}}{{short .Address}}{{end}} on Banano Explorer"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg></button>
+        <button type="button" class="ib js" aria-label="Add your own label" data-open="label"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12l-8 8-9-9V3h8z"/><circle cx="7.5" cy="7.5" r="1.5"/></svg></button>
+      </div>
+      <div style="display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap">
+        {{$p := banParts .Info.Balance}}<span class="amt-big">{{index $p 0}}{{if index $p 1}}<small>.{{index $p 1}}</small>{{end}}</span>
+        <span style="font-size: 20px; font-weight: 600">BAN</span>
+        {{with usd .Info.Balance}}<span style="font-size: 17px" class="muted" data-fiat="{{banNum $.Data.Info.Balance}}">≈ {{.}}</span>{{end}}
+      </div>
+      {{if not (isZero .Info.Receivable)}}<p style="margin: 0"><a href="?tab=receivable" class="pill amber" style="font-size: 14px">+{{ban .Info.Receivable}} BAN waiting to be received</a></p>{{end}}
+    </div>
+    <dl style="flex: 1 1 280px; min-width: 0; margin: 0">
+      {{if .Opened}}
+      <div class="fact"><dt class="label">Representative</dt><dd>{{if .RepName}}<a href="/account/{{.Info.Representative}}" style="font-weight: 500">{{.RepName}}</a> <span class="mono muted" style="font-size: 13px">{{short .Info.Representative}}</span>{{else}}<a href="/account/{{.Info.Representative}}" class="mono">{{short .Info.Representative}}</a>{{end}}{{with .RepInfo}}<div style="margin-top: 6px; font-size: 14px"><a href="/rep/{{.Account}}" style="display: inline-flex; align-items: center; gap: 8px"><span class="g {{gradeClass .Score.Grade}}">{{gradeLabel .Score.Grade}}</span>Rep score {{.Score.Points}}: {{lower (weakest .)}}</a></div>{{end}}</dd></div>
+      {{end}}
+      {{with .SelfRep}}<div class="fact"><dt class="label">As a representative</dt><dd><a href="/rep/{{.Account}}" style="display: inline-flex; align-items: center; gap: 8px"><span class="g {{gradeClass .Score.Grade}}">{{gradeLabel .Score.Grade}}</span>Rep score {{.Score.Points}} · {{f2 .SharePct}}% of online weight</a></dd></div>{{end}}
+      {{if .IsRep}}<div class="fact"><dt class="label">Delegated to this account</dt><dd><span class="mono">{{ban .Info.Weight}}</span> BAN from <a href="?tab=delegators">{{group .DgCount}} delegators</a></dd></div>{{end}}
+      {{if .Opened}}
+      <div class="fact"><dt class="label">Blocks</dt><dd class="mono">{{group .Info.BlockCount}}</dd></div>
+      <div class="fact"><dt class="label">Last activity</dt><dd><time data-ts="{{.Info.ModifiedTimestamp}}">{{when .Info.ModifiedTimestamp}}</time> <span class="muted">({{ago .Info.ModifiedTimestamp}})</span></dd></div>
+      {{else}}
+      <div class="fact"><dt class="label">Status</dt><dd>This account has no blocks yet. It opens when it receives its first payment.</dd></div>
+      {{end}}
+    </dl>
+  </section>
+
+  <section class="card rows">
+    <div role="tablist" aria-label="Account details" class="tabs">
+      {{if .Opened}}<a role="tab" aria-selected="{{eq .Tab "transactions"}}" class="tab" href="/account/{{.Address}}">Transactions <span class="mono muted" style="font-size: 13px">{{group .Info.BlockCount}}</span></a>{{end}}
+      <a role="tab" aria-selected="{{eq .Tab "receivable"}}" class="tab" href="/account/{{.Address}}?tab=receivable">Receivable <span class="mono muted" style="font-size: 13px">{{.RcvCount}}</span></a>
+      {{if .Opened}}<a role="tab" aria-selected="{{eq .Tab "insights"}}" class="tab" href="/account/{{.Address}}?tab=insights">Insights</a>{{end}}
+      {{if .IsRep}}<a role="tab" aria-selected="{{eq .Tab "delegators"}}" class="tab" href="/account/{{.Address}}?tab=delegators">Delegators <span class="mono muted" style="font-size: 13px">{{group .DgCount}}</span></a>{{end}}
+    </div>
+
+    {{if eq .Tab "transactions"}}
+    <div class="toolbar">
+      <span class="chips">
+        <a class="chip{{if eq .Filter ""}} chip-on{{end}}" aria-pressed="{{eq .Filter ""}}" href="/account/{{.Address}}">All</a>
+        <a class="chip{{if eq .Filter "receive"}} chip-on{{end}}" aria-pressed="{{eq .Filter "receive"}}" href="/account/{{.Address}}?type=receive">Receive</a>
+        <a class="chip{{if eq .Filter "send"}} chip-on{{end}}" aria-pressed="{{eq .Filter "send"}}" href="/account/{{.Address}}?type=send">Send</a>
+        <a class="chip{{if eq .Filter "change"}} chip-on{{end}}" aria-pressed="{{eq .Filter "change"}}" href="/account/{{.Address}}?type=change">Change</a>
+      </span>
+      <span class="spacer"></span>
+      <a class="chip" href="/account/{{.Address}}/export.csv" download><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>Export CSV</a>
+    </div>
+    <div class="row tx head"><span>Height</span><span>Type</span><span>Counterparty</span><span class="r">Amount (BAN)</span><span>Block</span><span class="r">When</span></div>
+    {{range .Txs}}
+    <div class="row tx rowlink{{if and (ne .Type "change") (dust .Amount)}} dust{{end}}">
+      <a class="stretch" href="/block/{{.Hash}}" aria-label="Open block {{shortHash .Hash}}"></a>
+      <span class="mono muted hide-sm">{{.Height}}</span>
+      <span class="c1"><span class="pill {{typeClass .Type}}">{{title .Type}}</span>{{if .Pending}} <span class="pill amber">unconfirmed</span>{{end}}</span>
+      <a class="who" href="/account/{{.Party}}">{{if eq .Type "change"}}<span class="muted">to </span>{{end}}{{if .PartyName}}<b>{{.PartyName}}</b> {{end}}<span class="mono muted" style="font-size: 13px">{{short .Party}}</span></a>
+      <span class="mono r c2" style="font-weight: 600">{{if ne .Type "change"}}{{if eq .Type "send"}}−{{else}}+{{end}}{{ban .Amount}}{{end}}</span>
+      <a class="mono hide-sm" href="/block/{{.Hash}}" style="font-size: 13px">{{shortHash .Hash}}</a>
+      <span class="r muted c3" style="font-size: 14px" title="{{whenI .Time}}">{{agoI .Time}}</span>
+    </div>
+    {{end}}
+    {{if .JumpFailed}}<div class="notice" style="margin: 0 20px 12px"><span>Couldn't jump to that height: it's outside this account's {{group .Info.BlockCount}} blocks, or too deep in a very busy account to find quickly. Showing the newest blocks instead.</span></div>{{end}}
+    {{if not .Txs}}<div class="empty"><p class="muted" style="margin: 0">{{if .Filter}}No {{.Filter}} blocks among the {{group .Scanned}} blocks checked.{{else}}No blocks here.{{end}}</p></div>{{end}}
+    <div class="listfoot">
+      <span>{{if .Txs}}Heights {{.FromHeight}} to {{.ToHeight}} · {{end}}{{if .Filter}}{{group .Scanned}} blocks checked · {{end}}times as first seen by our node</span>
+      <span style="display: flex; gap: 8px; flex-wrap: wrap; align-items: center">
+        {{if .Head}}<a class="chip" href="/account/{{.Address}}{{if .Filter}}?type={{.Filter}}{{end}}">Newest</a>{{end}}
+        {{if .Older}}<a class="chip" href="/account/{{.Address}}?head={{.Older}}{{if .Filter}}&amp;type={{.Filter}}{{end}}">Older</a>{{end}}
+        <form action="/account/{{.Address}}" method="get" class="jump"><label for="jh" class="sr">Jump to height</label><input id="jh" name="height" inputmode="numeric" placeholder="Jump to height" class="mono"></form>
+      </span>
+    </div>
+    {{end}}
+
+    {{if eq .Tab "receivable"}}
+    {{if .Rcv}}
+    <div class="row rcv head"><span>Payment</span><span class="r">Amount (BAN)</span><span>Sent</span><span class="r">Block</span></div>
+    {{range .Rcv}}
+    <div class="row rcv rowlink{{if dust .Amount}} dust{{end}}">
+      <a class="stretch" href="/block/{{.Hash}}" aria-label="Open send block {{shortHash .Hash}}"></a>
+      <a class="who" href="/account/{{.From}}"><span class="muted">from </span>{{if .FromName}}<b>{{.FromName}}</b> {{end}}<span class="mono muted" style="font-size: 13px">{{short .From}}</span></a>
+      <span class="mono r c2" style="font-weight: 600">+{{ban .Amount}}</span>
+      <span class="muted c3" style="font-size: 14px" title="{{whenI .Time}}">{{agoI .Time}}</span>
+      <a class="mono r hide-sm" href="/block/{{.Hash}}" style="font-size: 13px">{{shortHash .Hash}}</a>
+    </div>
+    {{end}}
+    <div class="listfoot"><span>{{if .RcvMore}}Showing the {{len .Rcv}} biggest. {{end}}A wallet receives these when it next opens.</span></div>
+    {{else}}
+    <div class="empty"><p style="margin: 0" class="muted">Nothing is waiting to be received.</p></div>
+    {{end}}
+    {{end}}
+
+    {{if eq .Tab "insights"}}{{with .Ins}}
+    <div style="padding: 24px; display: flex; flex-direction: column; gap: 28px">
+      {{if .Err}}
+      <div class="notice"><span><b>Couldn't finish reading this account's history.</b> Our node was busy or unreachable. Reload in a minute to try again.</span></div>
+      {{else if not .Done}}
+      <div class="notice" data-refresh="3"><span><b>Working it out.</b> {{if .Total}}Reading all {{group .Total}} blocks{{if .Blocks}}, {{.Progress}}% done{{end}}.{{else}}Starting to read this account's history.{{end}} This page refreshes by itself; big accounts can take a couple of minutes.</span></div>
+      {{end}}
+      {{if $.Data.InsNote}}
+      <div class="notice"><span style="display: flex; flex-direction: column; gap: 2px"><b style="font-size: 17px">Looks like a pass-through account</b><span>{{$.Data.InsNote}} <b>{{$.Data.InsNoteTo}}</b>. It never holds a balance for long.</span></span></div>
+      {{end}}
+      {{if .Received}}
+      <div class="kp">
+        <div><span class="label">Received</span><span class="kv">{{bigBanFrac .Received}} BAN</span><span class="ks">in {{group .RecvN}} receives</span></div>
+        <div><span class="label">Sent</span><span class="kv">{{bigBanFrac .Sent}} BAN</span><span class="ks">in {{group .SendN}} sends</span></div>
+        <div><span class="label">Highest balance</span><span class="kv">{{bigBanFrac .MaxBalance}} BAN</span><span class="ks">{{if .MaxBalanceAt}}on {{day .MaxBalanceAt}}{{end}}</span></div>
+        <div><span class="label">Active since</span><span class="kv">{{if .First}}{{day .First}}{{else}}–{{end}}</span><span class="ks">{{if .Last}}last seen {{agoI .Last}}{{end}}</span></div>
+      </div>
+      <div class="half">
+        <div class="stack" style="gap: 10px">
+          <h2 style="font-size: 18px; font-weight: 600">Transactions per year</h2>
+          {{range $.Data.InsYears}}<div class="yr"><span class="mono">{{.Year}}</span><span class="track"><span style="width: {{pct64 .Count $.Data.InsMax}}%; background: var(--jungle)"></span></span><span class="mono r">{{group .Count}}</span></div>{{end}}
+        </div>
+        <div class="stack" style="gap: 10px">
+          <h2 style="font-size: 18px; font-weight: 600">Biggest single moves</h2>
+          {{with .LargestIn.Amount}}<div class="cp" style="border-top: 0"><span>Largest received</span><span class="mono" style="font-weight: 600">{{bigBanFrac .}} BAN</span><span class="faint" style="font-size: 13px">from {{template "who" $.Data.Ins.LargestIn.Account}}</span></div>{{end}}
+          {{with .LargestOut.Amount}}<div class="cp"><span>Largest sent</span><span class="mono" style="font-weight: 600">{{bigBanFrac .}} BAN</span><span class="faint" style="font-size: 13px">to {{template "who" $.Data.Ins.LargestOut.Account}}</span></div>{{end}}
+        </div>
+      </div>
+      <div class="half">
+        <div><h2 style="margin: 0 0 4px; font-size: 18px; font-weight: 600">Top senders</h2>
+          {{range .TopSenders}}<div class="cp">{{template "who" .Account}}<span class="mono" style="font-weight: 600">{{bigBan .Amount}} BAN</span><span class="faint" style="font-size: 13px">{{group .Count}} transaction{{if ne .Count 1}}s{{end}}</span></div>{{else}}<p class="muted">None yet.</p>{{end}}
+        </div>
+        <div><h2 style="margin: 0 0 4px; font-size: 18px; font-weight: 600">Top recipients</h2>
+          {{range .TopRecipients}}<div class="cp">{{template "who" .Account}}<span class="mono" style="font-weight: 600">{{bigBan .Amount}} BAN</span><span class="faint" style="font-size: 13px">{{group .Count}} transaction{{if ne .Count 1}}s{{end}}</span></div>{{else}}<p class="muted">None yet.</p>{{end}}
+        </div>
+      </div>
+      <p style="margin: 0; font-size: 14px" class="muted">Worked out from {{if .Done}}all {{group .Blocks}}{{else}}{{group .Blocks}} of {{group .Total}}{{end}} blocks and kept up to date as new blocks arrive. Times are when our node first saw each block.</p>
+      {{end}}
+    </div>
+    {{else}}<div class="empty"><p class="muted" style="margin: 0">Insights aren't available right now.</p></div>{{end}}{{end}}
+
+    {{if and (eq .Tab "delegators") .DgPending}}<div class="empty"><p class="muted" style="margin: 0">Delegators are counted during the explorer's hourly ledger scan, which is still running. Try again in a minute.</p></div>{{end}}
+    {{if and (eq .Tab "delegators") (not .DgPending)}}
+    <div class="row dg head"><span>#</span><span>Delegator</span><span class="r">Balance (BAN)</span><span class="r">Share of weight</span></div>
+    {{range $i, $d := .Dgs}}
+    <div class="row dg rowlink">
+      <a class="stretch" href="/account/{{$d.Account}}" aria-label="Open {{short $d.Account}}"></a>
+      <span class="mono muted hide-sm">{{add $i 1}}</span>
+      <a class="who" href="/account/{{$d.Account}}">{{if $d.Name}}<b>{{$d.Name}}</b> {{end}}<span class="mono muted" style="font-size: 13px">{{short $d.Account}}</span></a>
+      <span class="mono r c2" style="font-weight: 600">{{ban $d.Balance}}</span>
+      <span class="r c3 mono muted">{{printf "%.2f" $d.Pct}}%</span>
+    </div>
+    {{else}}
+    <div class="empty"><p style="margin: 0" class="muted">No delegators with a balance.</p></div>
+    {{end}}
+    {{if .DgMore}}<div class="listfoot"><span>The 100 biggest of {{group .DgOver1}} delegators holding at least 1 BAN.</span></div>{{end}}
+    {{end}}
+  </section>
+</main>
+
+<div class="overlay" id="qr" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="qr-t">
+    <div class="mhead"><h2 id="qr-t">Pay {{if .IsKnown}}{{.Known.Alias}}{{else}}this account{{end}}</h2><button type="button" class="ib" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="mbody">
+      <img id="qr-img" class="qr" src="/qr/{{.Address}}.svg" alt="QR code for a payment to this account" width="260" height="260">
+      <div class="addr" style="font-size: 13px; text-align: center">{{addrHTML .Address}}</div>
+      <div class="field"><label for="qr-amount" class="label">Request an amount (optional)</label>
+        <div style="display: flex; gap: 8px; align-items: center"><input id="qr-amount" type="text" inputmode="decimal" placeholder="0" data-addr="{{.Address}}" style="flex: 1"><span style="font-weight: 600">BAN</span></div>
+      </div>
+      <div style="padding: 12px 14px; border-radius: 10px; background: var(--paper); display: flex; flex-direction: column; gap: 2px" data-copy-wrap>
+        <span class="label">Payment link</span>
+        <span class="mono" id="qr-link" style="font-size: 12px; color: var(--ink2); word-break: break-all">ban:{{.Address}}</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px"><button type="button" class="btn" style="flex: 1" data-copy="ban:{{.Address}}">Copy link</button><a class="btn2" id="qr-dl" style="flex: 1" href="/qr/{{.Address}}.svg" download="banano-{{short .Address}}.svg">Download QR</a></div>
+      </div>
+      <span class="hint" style="text-align: center">Scan with Kalium, Banano Vault or any wallet that reads ban: links.</span>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="label" hidden>
+  <form class="modal" role="dialog" aria-modal="true" aria-labelledby="lb-t" id="labelform" data-addr="{{.Address}}">
+    <div class="mhead"><h2 id="lb-t">Your label for this address</h2><button type="button" class="ib" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="mbody">
+      <div class="field"><label for="lbl" class="label">Label</label><input id="lbl" type="text" maxlength="40" placeholder="e.g. My savings" autocomplete="off"></div>
+      <span class="hint">Only you see it, saved in this browser. It shows next to this address everywhere in the explorer.{{if .IsKnown}} Public names like “{{.Known.Alias}}” stay visible too.{{end}} Leave it empty to remove it.</span>
+      <div style="display: flex; gap: 8px; flex-wrap: wrap"><button type="submit" class="btn">Save label</button><button type="button" class="btn2" data-open="settings">Export my labels</button></div>
+    </div>
+  </form>
+</div>
+{{end}}{{end}}
+
+{{define "who"}}<a href="/account/{{.}}" class="{{if not (name .)}}mono{{end}}" style="color: var(--ink){{if name .}}; font-weight: 600{{end}}">{{if name .}}{{name .}}{{else}}{{short .}}{{end}}</a>{{end}}

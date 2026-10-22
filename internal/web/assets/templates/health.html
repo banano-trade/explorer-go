@@ -1,0 +1,49 @@
+{{define "content"}}{{with .Data}}
+<section class="hero{{if not .Good}} hero-bad{{end}}">
+  <div class="wrap" style="padding-top: 48px; padding-bottom: 48px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center">
+    <div class="verdict-icon" aria-hidden="true">{{if .Good}}<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#338233" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7"/></svg>{{else}}<svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#A4470F" stroke-width="2.6" stroke-linecap="round"><path d="M12 6v8M12 18h.01"/></svg>{{end}}</div>
+    <div style="flex: 1 1 420px; min-width: 0; display: flex; flex-direction: column; gap: 6px">
+      <span style="font-size: 14px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase">WeGoodFam™</span>
+      <h1 style="font-size: 56px; line-height: 1; letter-spacing: -.02em; font-weight: 700">{{.Headline}}</h1>
+      <p>{{.Summary}}</p>
+    </div>
+    <div class="stack" style="gap: 4px; font-size: 15px">
+      <span>Checked <time data-ts="{{.CheckedAt.Unix}}">{{whenI .CheckedAt.Unix}}</time></span>
+      <span>Checks again every 60 s</span>
+    </div>
+  </div>
+</section>
+
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 32px">
+  {{if .Checks}}
+  <section class="stack" style="gap: 14px">
+    <h2 style="font-size: 22px; font-weight: 600">The checks</h2>
+    <div class="chkgrid">
+      {{range .Checks}}
+      <div class="card chk">
+        <span class="pill {{levelClass .State}}">{{levelText .State}}</span>
+        <a class="label" href="{{.Link}}">{{.Name}} →</a>
+        <span class="val">{{.Value}}</span>
+        <span class="muted">{{.What}}</span>
+        <span class="rule">{{.Rule}}</span>
+      </div>
+      {{end}}
+    </div>
+  </section>
+  {{end}}
+
+  <section class="card" style="padding: 24px; display: flex; flex-direction: column; gap: 12px; max-width: 760px">
+    <span class="label">For bots and payment services</span>
+    <p style="margin: 0">Services can pause themselves when the network stalls by polling one URL. <span class="mono">good</span> is false only when blocks aren't confirming.</p>
+    <pre class="mono" style="margin: 0; padding: 16px; background: #2A2A2E; color: #E4E4E7; border-radius: 10px; font-size: 13px; overflow-x: auto">GET <a href="/api/health" style="color: var(--yellow)">/api/health</a>
+
+{
+  "good": {{.Good}},
+  "backlog": {{.Backlog}},
+  "quorum_ratio": {{printf "%.2f" .Quorum}},
+  "notes": [{{range $i, $n := .Notes}}{{if $i}}, {{end}}"{{$n}}"{{end}}],
+  ...
+}</pre>
+  </section>
+</main>
+{{end}}{{end}}

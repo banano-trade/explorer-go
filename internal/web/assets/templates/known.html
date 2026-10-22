@@ -1,0 +1,43 @@
+{{define "content"}}{{with .Data}}
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <section class="stack" style="gap: 6px">
+    <h1 class="ptitle">Known accounts</h1>
+    <p class="lead">Exchanges, faucets, games, representatives and other accounts with a public name. These names show up across the explorer in place of raw addresses.</p>
+  </section>
+
+  <nav class="chips" aria-label="Filter by category">
+    <a class="chip{{if eq .Cat ""}} chip-on{{end}}" aria-pressed="{{eq .Cat ""}}" href="/known?sort={{.Sort}}">All <span class="cnt">{{.Total}}</span></a>
+    {{range .Cats}}<a class="chip{{if eq $.Data.Cat .}} chip-on{{end}}" aria-pressed="{{eq $.Data.Cat .}}" href="/known?cat={{.}}&amp;sort={{$.Data.Sort}}">{{catLabel .}} <span class="cnt">{{index $.Data.Counts .}}</span></a>{{end}}
+  </nav>
+
+  <section class="card rows">
+    <form class="toolbar" action="/known" method="get">
+      <label for="kf" class="sr">Filter known accounts</label>
+      <input id="kf" type="search" placeholder="Filter by name, owner or address" class="filter" style="flex: 1 1 280px; max-width: 380px" data-filter="#knownlist">
+      <span class="spacer"></span>
+      {{if .Cat}}<input type="hidden" name="cat" value="{{.Cat}}">{{end}}
+      <label style="display: inline-flex; align-items: center; gap: 8px; font-size: 15px">Sort
+        <select name="sort" class="select" data-autosubmit>
+          <option value="category"{{if eq .Sort "category"}} selected{{end}}>Category</option>
+          <option value="balance"{{if eq .Sort "balance"}} selected{{end}}>Balance</option>
+          <option value="name"{{if eq .Sort "name"}} selected{{end}}>Name</option>
+        </select>
+      </label>
+      <noscript><button class="btn2" type="submit" style="height: 44px">Sort</button></noscript>
+    </form>
+    <div class="row kr head"><span>Account</span><span>Category</span><span>Owner</span><span class="r">Balance (BAN)</span></div>
+    <div id="knownlist">
+    {{range .Rows}}
+    <div class="row kr rowlink" data-text="{{.Alias}} {{.Owner}} {{.Address}}">
+      <a class="stretch" href="/account/{{.Address}}" aria-label="Open {{.Alias}}"></a>
+      <a class="who stackname" href="/account/{{.Address}}"><b>{{.Alias}}</b><span class="mono faint" style="font-size: 13px; overflow: hidden; text-overflow: ellipsis">{{.Address}}</span></a>
+      <span class="c"><span class="cat">{{catLabel .Category}}</span></span>
+      <span class="o muted">{{.Owner}}</span>
+      <span class="b mono r">{{if .Balance}}{{bigBan .Balance}}{{else if $.Data.Scanned}}<span class="faint">under 1</span>{{else}}<span class="faint">–</span>{{end}}</span>
+    </div>
+    {{end}}
+    </div>
+    <div class="listfoot"><span>{{len .Rows}} accounts · names from the Banano known-accounts list</span></div>
+  </section>
+</main>
+{{end}}{{end}}

@@ -1,0 +1,88 @@
+{{define "content"}}{{with .Data}}
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px">
+    <nav class="crumbs" aria-label="Breadcrumb">
+      <a href="/account/{{.Account}}">{{if .AccountName}}{{.AccountName}}{{else}}{{short .Account}}{{end}}</a><span aria-hidden="true">›</span>
+      <span aria-current="page">Block {{group .Height}}</span>
+    </nav>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap">
+      {{if .Previous}}<a class="step" href="/block/{{.Previous}}" rel="prev">‹ Older</a>{{else}}<span class="step off" aria-disabled="true">First block</span>{{end}}
+      {{if .Next}}<a class="step" href="/block/{{.Next}}" rel="next">Newer ›</a>{{else}}<span class="step off" aria-disabled="true">Newest block</span>{{end}}
+    </div>
+  </div>
+
+  <section class="stack" style="gap: 12px">
+    <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
+      <span class="pill {{typeClass .Type}}" style="font-size: 14px; padding: 3px 12px">{{title .Type}}</span>
+      {{if .Confirmed}}<span class="pill in">✓ Confirmed</span>{{else}}<span class="pill amber">Waiting for confirmation</span>{{end}}
+      {{if .Latest}}<span class="pill chg">Latest block on this account</span>{{end}}
+    </div>
+    {{if eq .Type "change"}}
+    <h1 style="font-size: 40px; line-height: 1.1">Representative change</h1>
+    {{else}}
+    <h1 style="font-size: 48px; line-height: 1.05; letter-spacing: -.02em; font-weight: 700">{{if eq .Type "send"}}−{{else}}+{{end}}{{ban .Amount}} <span style="font-size: 24px; font-weight: 600">BAN</span></h1>
+    {{with usd .Amount}}<span class="hint"><span data-fiat="{{banNum $.Data.Amount}}">≈ {{.}}</span> at today's price</span>{{end}}
+    {{end}}
+    <div style="display: flex; align-items: center; gap: 10px">
+      <span class="hash muted">{{.Hash}}</span>
+      <button type="button" class="ib" aria-label="Copy block hash" data-copy="{{.Hash}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button>
+    </div>
+  </section>
+
+  {{if or (eq .Type "send") (eq .Type "receive") (eq .Type "open")}}
+  {{$send := eq .Type "send"}}
+  <section aria-label="Who sent and who received" style="display: flex; flex-wrap: wrap; align-items: stretch; gap: 12px">
+    {{if $send}}{{template "party" (partyArgs "From · this block's account" .Account .AccountName true)}}{{else}}{{template "party" (partyArgs "From" .Party .PartyName false)}}{{end}}
+    <div style="display: flex; align-items: center; justify-content: center; flex: 0 0 48px" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="muted"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+    {{if $send}}{{template "party" (partyArgs "To" .Party .PartyName false)}}{{else}}{{template "party" (partyArgs "To · this block's account" .Account .AccountName true)}}{{end}}
+  </section>
+
+  <section class="card" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+    <h2 style="font-size: 18px; font-weight: 600">Where this payment is</h2>
+    <div class="tl">
+      <div class="st"><span class="dot ok">✓</span><span style="font-weight: 600">Sent</span><span class="hint">{{if $send}}this block{{else}}send block <a href="/block/{{.Match}}" class="mono">{{shortHash .Match}}</a>{{end}}</span></div>
+      <div class="st">{{if .Confirmed}}<span class="dot ok">✓</span><span style="font-weight: 600">Confirmed</span><span class="hint">Final, can't be reversed</span>{{else}}<span class="dot wait">…</span><span style="font-weight: 600">Confirming</span><span class="hint">Usually under a second</span>{{end}}</div>
+      {{if $send}}
+      <div class="st">{{if .Burn}}<span class="dot no">🔥</span><span style="font-weight: 600">Burned forever</span><span class="hint">Nobody holds the key to the burn address</span>{{else if .ReceivedUnknown}}<span class="dot ok">✓</span><span style="font-weight: 600">Received</span><span class="hint">by {{if .PartyName}}{{.PartyName}}{{else}}{{short .Party}}{{end}}</span>{{else if .Received}}<span class="dot ok">✓</span><span style="font-weight: 600">Received</span><span class="hint">receive block <a href="/block/{{.Match}}" class="mono">{{shortHash .Match}}</a></span>{{else}}<span class="dot wait">…</span><span style="font-weight: 600">Not received yet</span><span class="hint">The receiving wallet picks it up when it opens</span>{{end}}</div>
+      {{else}}
+      <div class="st"><span class="dot ok">✓</span><span style="font-weight: 600">Received</span><span class="hint">this block</span></div>
+      {{end}}
+    </div>
+  </section>
+  {{end}}
+
+  <section class="card rows">
+    <h2 style="padding: 16px 24px; font-size: 18px; font-weight: 600">Details</h2>
+    <dl style="margin: 0">
+      {{if ne .Type "change"}}<div class="dl"><dt>Amount</dt><dd><span class="mono">{{banFull .Amount}} BAN</span><div class="hint mono" style="font-size: 13px">{{.Amount}} raw</div></dd></div>{{end}}
+      <div class="dl"><dt>Balance after</dt><dd class="mono">{{banFull .Balance}} BAN</dd></div>
+      <div class="dl"><dt>Height</dt><dd><span class="mono">{{group .Height}}</span>{{if .AccountBlocks}} <span class="hint">of {{group .AccountBlocks}}</span>{{end}}</dd></div>
+      <div class="dl"><dt>Time</dt><dd>{{if .Time}}<time data-ts="{{.Time}}">{{whenI .Time}}</time> <span class="hint">· first seen by our node, {{agoI .Time}}</span>{{else}}<span class="hint">Unknown. Our node got this block before it recorded times.</span>{{end}}</dd></div>
+      <div class="dl"><dt>Representative</dt><dd>{{if .RepName}}<a href="/account/{{.Rep}}" style="font-weight: 500">{{.RepName}}</a> <span class="mono hint" style="font-size: 13px">{{short .Rep}}</span>{{else}}<a href="/account/{{.Rep}}" class="mono">{{.Rep}}</a>{{end}}</dd></div>
+      {{if .Match}}<div class="dl"><dt>{{if eq .Type "send"}}Matching receive{{else}}Matching send{{end}}</dt><dd><a href="/block/{{.Match}}" class="hash">{{.Match}}</a></dd></div>{{end}}
+      <div class="dl"><dt>Previous block</dt><dd>{{if .Previous}}<a href="/block/{{.Previous}}" class="hash">{{.Previous}}</a>{{else}}<span class="hint">None, this opened the account</span>{{end}}</dd></div>
+      <div class="dl"><dt>Next block</dt><dd>{{if .Next}}<a href="/block/{{.Next}}" class="hash">{{.Next}}</a>{{else}}<span class="hint">None yet</span>{{end}}</dd></div>
+      <div class="dl"><dt>Signature</dt><dd class="hash muted" style="font-size: 13px">{{.Signature}}</dd></div>
+      <div class="dl"><dt>Proof of work</dt><dd class="mono muted" style="font-size: 14px">{{.Work}}</dd></div>
+    </dl>
+  </section>
+
+  {{if .JSON}}
+  <details class="card rows">
+    <summary style="padding: 16px 24px; font-size: 18px; font-weight: 600; cursor: pointer">Raw block JSON</summary>
+    <pre class="mono" style="margin: 0; padding: 20px 24px; background: #2A2A2E; color: #E4E4E7; font-size: 13px; line-height: 1.6; overflow-x: auto">{{.JSON}}</pre>
+  </details>
+  {{end}}
+</main>
+{{end}}{{end}}
+
+{{define "party"}}
+<a href="/account/{{.Addr}}" class="card party"{{if .Self}} style="border-color: var(--jungle)"{{end}}>
+  <img src="{{monkey .Addr}}" alt="" width="52" height="52" loading="lazy">
+  <span class="stack" style="min-width: 0">
+    <span class="label">{{.Label}}</span>
+    <span style="font-weight: 600; font-size: 18px">{{if .Name}}{{.Name}}{{else}}{{short .Addr}}{{end}}</span>
+    <span class="mono muted" style="font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap">{{short .Addr}}</span>
+  </span>
+</a>
+{{end}}

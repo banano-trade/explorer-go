@@ -1,0 +1,78 @@
+{{define "content"}}{{with .Data}}
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <section class="stack" style="gap: 6px">
+    <h1 class="ptitle">Representatives</h1>
+    <p class="lead">Representatives vote on blocks with the balance delegated to them. A block confirms once 67% of the online weight agrees.</p>
+  </section>
+
+  <a href="/delegate" class="card cta">
+    <span style="display: flex; gap: 6px" aria-hidden="true"><span class="g gA">A</span><span class="g gB">B</span><span class="g gC">C</span><span class="g gD">D</span></span>
+    <span class="stack" style="flex: 1 1 360px"><span style="font-weight: 600; font-size: 18px">Not sure who to delegate to?</span><span class="muted">Every rep gets a score for uptime, voting, size and node health. {{.GradeA}} reps earn an A today.</span></span>
+    <span style="font-weight: 600; color: var(--link)">Pick a good rep →</span>
+  </a>
+
+  <section class="stats">
+    <div class="card stat"><span class="label">Online</span><span class="v">{{len .Online}}</span><span class="s">{{.Principal}} principal (0.1%+ of weight)</span></div>
+    <div class="card stat"><span class="label">Online weight</span><span class="v">{{shortBan .OnlineWeight}} BAN</span><span class="s">minimum {{shortBan .Minimum}} for quorum</span></div>
+    <div class="card stat"><span class="label">Nakamoto coefficient</span><span class="v">{{.Nakamoto}}</span><span class="s">reps needed to pass 67%</span></div>
+    <div class="card stat"><span class="label">Offline weight</span><span class="v">{{shortBan .OfflineWeight}} BAN</span><span class="s">delegated to reps that are down</span></div>
+  </section>
+
+  <section class="card" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px">
+    <h2 style="font-size: 20px; font-weight: 600">Who holds the online weight</h2>
+    <div class="share">
+      <div class="mark" style="left: 33%"><span>33% stall</span></div>
+      <div class="mark strong" style="left: 67%"><span>67% confirm</span></div>
+      <div class="bar" role="img" aria-label="Online weight share: {{range $i, $s := .Segments}}{{if $i}}, {{end}}{{$s.Name}} {{f1 $s.Pct}}%{{end}}">
+        {{range .Segments}}<div class="seg" style="width: {{f2 .Pct}}%; background: {{.Color}}"></div>{{end}}
+      </div>
+    </div>
+    <div class="keys">
+      {{range .Segments}}<span class="key"><i style="background: {{.Color}}"></i>{{.Name}} {{f1 .Pct}}%</span>{{end}}
+    </div>
+    <p style="margin: 0; font-size: 15px" class="muted">The {{.Nakamoto}} largest representatives together pass the 67% line.{{range .Groups}} {{.}}{{end}}</p>
+  </section>
+
+  <section class="card rows">
+    <div class="toolbar">
+      <h2 style="font-size: 20px; font-weight: 600">Online representatives</h2>
+      <span class="spacer"></span>
+      <label for="rf" class="sr">Filter representatives</label>
+      <input id="rf" type="search" placeholder="Filter by name or address" class="filter" data-filter="#replist">
+    </div>
+    <div class="row rr head"><span>#</span><span>Representative</span><span class="r">Weight (BAN)</span><span class="r">Share</span><span>Running total</span><span>Rep score</span></div>
+    <div id="replist">
+    {{$cum := 0.0}}
+    {{range $i, $r := .Rows}}{{$cum = addf $cum $r.SharePct}}
+    <div class="row rr" data-text="{{repName $r}} {{$r.Account}}"{{if and (gt $cum 67.0) (lt (subf $cum $r.SharePct) 67.0)}} style="box-shadow: inset 0 -2px 0 var(--ink)"{{end}}>
+      <span class="mono muted">{{add $i 1}}</span>
+      <a class="who stackname" href="/rep/{{$r.Account}}">{{if $r.Name}}<b>{{$r.Name}}</b><span class="mono faint" style="font-size: 13px">{{short $r.Account}}</span>{{else}}<b class="mono" style="font-weight: 500">{{short $r.Account}}</b>{{end}}</a>
+      <span class="mono r w">{{bigBan $r.Weight}}</span>
+      <span class="mono r p" style="font-weight: 600">{{f1 $r.SharePct}}%</span>
+      <span class="cum"><span class="track"><span style="width: {{f1 (minf $cum 100.0)}}%; background: {{if gt $cum 67.0}}var(--ink4){{else}}var(--jungle){{end}}"></span></span><span class="mono muted" style="font-size: 13px; width: 52px; text-align: right">{{f1 $cum}}%</span></span>
+      <a class="st" href="/rep/{{$r.Account}}" aria-label="Rep score {{$r.Score.Points}}, grade {{$r.Score.Grade}}"><span class="g {{gradeClass $r.Score.Grade}}">{{gradeLabel $r.Score.Grade}}</span><span class="mono muted" style="font-size: 13px">{{$r.Score.Points}}</span></a>
+    </div>
+    {{end}}
+    </div>
+    <div class="listfoot"><span>{{if not .All}}Showing {{len .Rows}} of {{len .Online}} online{{if lt (len .Rows) (len .Online)}} · <a href="/representatives?all=1">Show all</a>{{end}} · {{end}}weights as of <time data-ts="{{.At.Unix}}">{{whenI .At.Unix}}</time></span></div>
+  </section>
+
+  {{if .Offline}}
+  <section class="card rows">
+    <div class="stack" style="padding: 16px 20px; gap: 2px">
+      <h2 style="font-size: 20px; font-weight: 600">Largest offline representatives</h2>
+      <span class="muted" style="font-size: 15px">Their {{shortBan .OfflineWeight}} BAN of delegated weight doesn't count toward quorum. If you delegate to one of them, switch.</span>
+    </div>
+    {{range $i, $r := .Offline}}{{if lt $i 10}}
+    <div class="row rr">
+      <span></span>
+      <a class="who stackname" href="/account/{{$r.Account}}">{{if $r.Name}}<b>{{$r.Name}}</b><span class="mono faint" style="font-size: 13px">{{short $r.Account}}</span>{{else}}<b class="mono" style="font-weight: 500">{{short $r.Account}}</b>{{end}}</a>
+      <span class="mono r w">{{bigBan $r.Weight}}</span>
+      <span class="p"></span><span class="cum"></span>
+      <span class="st"><span class="g gOff">OFF</span></span>
+    </div>
+    {{end}}{{end}}
+  </section>
+  {{end}}
+</main>
+{{end}}{{end}}

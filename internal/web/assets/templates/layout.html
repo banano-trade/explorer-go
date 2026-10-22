@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{if .Title}}{{.Title}} · {{end}}Banano Explorer</title>
+{{if .Description}}<meta name="description" content="{{.Description}}">{{end}}
+<meta name="theme-color" content="#2A2A2E">
+<meta property="og:site_name" content="Banano Explorer">
+{{if .Canonical}}<link rel="canonical" href="{{.Canonical}}"><meta property="og:url" content="{{.Canonical}}">{{end}}
+<meta property="og:title" content="{{if .Title}}{{.Title}}{{else}}Banano Explorer{{end}}">
+{{if .Description}}<meta property="og:description" content="{{.Description}}">{{end}}
+{{if .Image}}<meta property="og:image" content="{{.Image}}"><meta name="twitter:card" content="summary_large_image">{{end}}
+{{if .Prices}}<meta name="x-prices" content="{{.Prices}}">{{end}}
+<link rel="icon" href="{{asset "/static/img/banano-mark.svg"}}" type="image/svg+xml">
+<link rel="preload" href="/static/fonts/outfit.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="{{asset "/static/app.css"}}">
+<script src="{{asset "/static/theme.js"}}"></script>
+<script src="{{asset "/static/app.js"}}" defer></script>
+</head>
+<body>
+<header class="top">
+  <div class="wrap topin">
+    <a class="brand" href="/">
+      <svg width="34" height="18" viewBox="0 0 256 135" aria-hidden="true"><path fill="#FBDD11" fill-rule="evenodd" d="M184.1 133.9C103.5 144 66.3 72.9 73 65.9c4.4-4.6 11.1-4.9 17-5 27-.8 65.1 30.8 72.9 30.6 15-.3 37.5-24.2 52.3-43.9 6.2-8.2 44.9-20.6 40.6 1-14 70.2-61.3 84-71.6 85.3ZM72 .9C152.5-9 189.7 62 183 69c-4.4 4.7-11.1 5-17 5-27 .8-65.1-30.8-72.9-30.6-15 .3-37.5 24.2-52.3 43.9-6.2 8.2-44.9 20.7-40.6-1C14.3 16 61.6 2.2 72 1Z"/></svg>
+      <span><b>BANANO</b><span class="bx"> Explorer</span></span>
+    </a>
+    <nav class="nav" aria-label="Main">
+      <a href="/blocks"{{if eq .Nav "blocks"}} aria-current="page"{{end}}>Blocks</a>
+      <a href="/representatives"{{if eq .Nav "reps"}} aria-current="page"{{end}}>Representatives</a>
+      <a href="/network"{{if eq .Nav "network"}} aria-current="page"{{end}}>Network</a>
+      <a href="/richlist"{{if eq .Nav "rich"}} aria-current="page"{{end}}>Rich list</a>
+      <a href="/burn"{{if eq .Nav "burn"}} aria-current="page"{{end}}>Burn</a>
+      <a href="/known"{{if eq .Nav "known"}} aria-current="page"{{end}}>Known accounts</a>
+    </nav>
+    {{if ne .Nav "home"}}
+    <form role="search" action="/search" class="hsearch" autocomplete="off">
+      <label for="hq" class="sr">Search</label>
+      <input id="hq" name="q" type="search" placeholder="Search address, block or name" class="mono" data-suggest>
+    </form>
+    <span class="spacer sbtn"></span>
+    <a class="ib ib-dark sbtn" href="/search" aria-label="Search"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg></a>
+    {{else}}<span class="spacer"></span>{{with .Data.PriceUSD}}<span class="pricechip desk mono" data-fiatchip="{{.}}">BAN {{usdPrice .}}</span>{{end}}{{end}}
+    <a class="status{{if not .Status.Good}} bad{{end}}" href="/health"><i></i>{{.Status.Text}}</a>
+    <button type="button" class="ib ib-dark desk" aria-label="Settings" data-open="settings"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg></button>
+    <a class="ib ib-dark nb" href="/menu" aria-label="Open menu" data-open="menu"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg></a>
+  </div>
+</header>
+
+{{template "content" .}}
+
+<div class="overlay" id="settings" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="st-t" style="max-width: 440px">
+    <div class="mhead"><h2 id="st-t">Settings</h2><button type="button" class="ib" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="mbody" style="gap: 20px">
+      <div class="field"><span class="label" id="l-theme">Theme</span><div class="seg" role="group" aria-labelledby="l-theme" data-pref="theme"><button type="button" data-v="auto">Auto</button><button type="button" data-v="light">Light</button><button type="button" data-v="dark">Dark</button></div></div>
+      <div class="field"><label for="pref-fiat" class="label">Money</label><select id="pref-fiat" data-pref="fiat"><option value="usd">USD ($)</option><option value="eur">EUR (€)</option><option value="try">TRY (₺)</option><option value="gbp">GBP (£)</option><option value="btc">BTC (₿)</option><option value="none">None, hide fiat</option></select></div>
+      <div class="field"><span class="label" id="l-time">Times</span><div class="seg" role="group" aria-labelledby="l-time" data-pref="time"><button type="button" data-v="local">Your time</button><button type="button" data-v="utc">UTC</button></div></div>
+      <div class="field"><span class="label" id="l-dust">Small payments</span><div class="seg" role="group" aria-labelledby="l-dust" data-pref="dust"><button type="button" data-v="show">Show all</button><button type="button" data-v="hide">Hide under 0.01 BAN</button></div><span class="hint">Hides dust and spam from history and receivable lists.</span></div>
+      <div class="stack" style="gap: 6px; padding-top: 12px; border-top: 1px solid var(--line2)">
+        <span class="label">Your data</span>
+        <span data-labelcount>No labels yet</span>
+        <div style="display: flex; gap: 8px; flex-wrap: wrap"><button type="button" class="btn2" data-export>Export</button><label class="btn2" style="cursor: pointer">Import<input type="file" accept="application/json" data-import hidden></label><button type="button" class="btn2" data-open="shortcuts">Keyboard shortcuts</button></div>
+      </div>
+      <span class="hint">Saved in this browser only. We don't use accounts or cookies for tracking.</span>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="shortcuts" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="ks-t">
+    <div class="mhead"><h2 id="ks-t">Keyboard shortcuts</h2><button type="button" class="ib" data-close aria-label="Close"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="mbody" style="gap: 0">
+      <div class="sk"><span>Search</span><span><span class="kbd">/</span></span></div>
+      <div class="sk"><span>Next / previous row</span><span><span class="kbd">j</span><span class="kbd">k</span></span></div>
+      <div class="sk"><span>Open the selected row</span><span><span class="kbd">Enter</span></span></div>
+      <div class="sk"><span>Older / newer block</span><span><span class="kbd">←</span><span class="kbd">→</span></span></div>
+      <div class="sk"><span>Copy this page's address or hash</span><span><span class="kbd">c</span></span></div>
+      <div class="sk"><span>Show QR code</span><span><span class="kbd">q</span></span></div>
+      <div class="sk"><span>Go home</span><span><span class="kbd">g</span> then <span class="kbd">h</span></span></div>
+      <div class="sk"><span>Go to representatives</span><span><span class="kbd">g</span> then <span class="kbd">r</span></span></div>
+      <div class="sk"><span>Open this help</span><span><span class="kbd">?</span></span></div>
+      <span class="hint" style="padding-top: 12px">Shortcuts never fire while you're typing in a box. Press <span class="kbd" style="height: 24px">Esc</span> to close.</span>
+    </div>
+  </div>
+</div>
+
+<nav class="drawer" id="menu" hidden aria-label="Menu">
+  <div class="wrap topin"><span style="font-weight: 600; font-size: 18px; flex: 1">Menu</span><button type="button" class="ib ib-dark" data-close aria-label="Close menu"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+  <div class="wrap">{{template "menuitems" .}}</div>
+</nav>
+
+
+<footer class="foot">
+  <div class="wrap">
+    <span>Data from the banano.trade node</span>
+    <a href="https://github.com/banano-trade/explorer-go">Source code</a>
+    <a href="https://banano.cc">About Banano</a>
+    <a href="/delegate">Pick a good rep</a>
+    <span class="spacer"></span>
+    <span class="desk">Press <span class="kbd">?</span> for keyboard shortcuts</span>
+  </div>
+</footer>
+</body>
+</html>
+
+{{define "menuitems"}}
+<form role="search" action="/search" style="padding: 8px 0 16px" autocomplete="off"><label for="mq" class="sr">Search</label><input id="mq" name="q" type="search" placeholder="Address, block or name" class="mono" style="width: 100%; height: 48px; padding: 0 14px; border-radius: 10px; border: 1px solid var(--top-line); background: #212124; color: #fff; font-size: 15px"></form>
+<a class="item" href="/blocks">Blocks <span aria-hidden="true">›</span></a>
+<a class="item" href="/representatives">Representatives <span aria-hidden="true">›</span></a>
+<a class="item" href="/delegate">Pick a good rep <span aria-hidden="true">›</span></a>
+<a class="item" href="/network">Network <span aria-hidden="true">›</span></a>
+<a class="item" href="/health">Network health <span aria-hidden="true">›</span></a>
+<a class="item" href="/richlist">Rich list <span aria-hidden="true">›</span></a>
+<a class="item" href="/burn">Burn <span aria-hidden="true">›</span></a>
+<a class="item" href="/known">Known accounts <span aria-hidden="true">›</span></a>
+<a class="item" href="#settings" data-open="settings">Settings <span aria-hidden="true">›</span></a>
+{{end}}

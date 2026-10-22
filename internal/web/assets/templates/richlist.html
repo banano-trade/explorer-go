@@ -1,0 +1,62 @@
+{{define "content"}}{{with .Data}}
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <section class="stack" style="gap: 6px">
+    <h1 class="ptitle">Rich list</h1>
+    <p class="lead">The biggest Banano balances, with known names. Accounts idle for a year or more are marked in orange. Updated every hour from a full scan of the ledger; last scan <time data-ts="{{.Scan.At.Unix}}">{{whenI .Scan.At.Unix}}</time>.</p>
+  </section>
+
+  <section class="stats">
+    <div class="card stat"><span class="label">Top 10 hold</span><span class="v">{{f1 .Top10}}%</span><span class="s">of circulating supply</span></div>
+    <div class="card stat"><span class="label">Top 100 hold</span><span class="v">{{f1 .Top100}}%</span><span class="s">{{shortBan .Top100Raw}} BAN</span></div>
+    <div class="card stat"><span class="label">Banano-owned in top 100</span><span class="v">{{.TeamN}}</span><span class="s">funds and wBAN wallets, {{shortBan .TeamRaw}} BAN</span></div>
+    <div class="card stat"><span class="label">Accounts with a balance</span><span class="v">{{group .Scan.Accounts}}</span><span class="s">0.0001 BAN or more</span></div>
+  </section>
+
+  <section class="card rows">
+    <div class="toolbar">
+      <h2 style="font-size: 20px; font-weight: 600">Top holders</h2>
+      <span class="spacer"></span>
+      <a class="chip{{if .HideTeam}} chip-on{{end}}" aria-pressed="{{.HideTeam}}" href="?{{if not .HideTeam}}team=hide&amp;{{end}}{{if .HideEx}}ex=hide&amp;{{end}}n={{.Limit}}">Hide Banano-owned</a>
+      <a class="chip{{if .HideEx}} chip-on{{end}}" aria-pressed="{{.HideEx}}" href="?{{if .HideTeam}}team=hide&amp;{{end}}{{if not .HideEx}}ex=hide&amp;{{end}}n={{.Limit}}">Hide exchanges</a>
+    </div>
+    <div class="row rl head"><span>#</span><span>Account</span><span>Type</span><span class="r">Balance (BAN)</span><span class="r">Supply</span><span class="r">Blocks</span><span class="r">Last active</span></div>
+    {{range $i, $r := .Rows}}
+    <div class="row rl rowlink">
+      <a class="stretch" href="/account/{{$r.Account}}" aria-label="Open {{if $r.Name}}{{$r.Name}}{{else}}{{short $r.Account}}{{end}}"></a>
+      <span class="mono muted">{{add $i 1}}</span>
+      <a class="who stackname" href="/account/{{$r.Account}}">{{if $r.Name}}<b>{{$r.Name}}</b><span class="mono muted" style="font-size: 13px">{{short $r.Account}}</span>{{else}}<span class="mono">{{short $r.Account}}</span>{{end}}</a>
+      <span class="c">{{if $r.Team}}<span class="cat cat-team">Banano</span>{{else if $r.Category}}<span class="cat">{{catLabel $r.Category}}</span>{{end}}</span>
+      <span class="mono r b" style="font-weight: 600">{{bigBan $r.Balance}}</span>
+      <span class="mono r p muted">{{f2 $r.Pct}}%</span>
+      <span class="mono r tx muted">{{group $r.Blocks}}</span>
+      <span class="r la" style="font-size: 14px; color: {{if $r.Idle}}var(--out){{else}}var(--ink3){{end}}">{{agoI $r.Modified}}</span>
+    </div>
+    {{end}}
+    <div class="listfoot"><span>Showing {{len .Rows}} of {{group .Scan.Accounts}}{{if eq .Limit 50}} · <a href="?{{if .HideTeam}}team=hide&amp;{{end}}{{if .HideEx}}ex=hide&amp;{{end}}n=500">Show top 500</a>{{end}}</span></div>
+  </section>
+
+  <section class="side">
+    <div class="card" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+        <h2 style="font-size: 20px; font-weight: 600">Accounts by balance</h2>
+        <span style="font-size: 14px" class="faint">BAN</span>
+      </div>
+      {{range .Scan.Buckets}}
+      <div class="bk"><span class="mono" style="font-size: 14px">{{.Label}}</span><span class="track"><span style="width: {{pctOf .Count $.Data.MaxBucket}}%; background: var(--jungle)"></span></span><span class="mono r" style="font-size: 14px">{{group .Count}}</span></div>
+      {{end}}
+    </div>
+
+    <div class="card" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 12px">
+      <div style="display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 8px">
+        <h2 style="font-size: 20px; font-weight: 600">Biggest movers</h2>
+        <span class="chips"><a class="chip{{if eq .MoversRange "24h"}} chip-on{{end}}" href="?movers=24h">24 h</a><a class="chip{{if eq .MoversRange "7d"}} chip-on{{end}}" href="?movers=7d">7 d</a></span>
+      </div>
+      {{range .Movers}}
+      <div class="mv"><a class="who" href="/account/{{.Account}}">{{if .Name}}<b>{{.Name}}</b>{{else}}<span class="mono">{{short .Account}}</span>{{end}}</a><span class="mono r" style="font-weight: 600; color: {{if gt .Change 0.0}}var(--in){{else}}var(--out){{end}}">{{signed .Change}}</span></div>
+      {{else}}
+      <div class="chart-empty" style="height: 150px">Accounts whose balance grew or shrank the most. This fills in once the explorer has a scan from {{if eq .MoversRange "7d"}}a week{{else}}a day{{end}} ago.</div>
+      {{end}}
+    </div>
+  </section>
+</main>
+{{end}}{{end}}

@@ -1,0 +1,109 @@
+[
+    {
+        "address": "ban_1fundm3d7zritekc8bdt4oto5ut8begz6jnnt7n3tdxzjq3t46aiuse1h7gj",
+        "alias": "Distribution Fund: 1",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3fundbxxzrzfy3k9jbnnq8d44uhu5sug9rkh135bzqncyy9dw91dcrjg67wf",
+        "alias": "Distribution Fund: 3",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1acaih1rhhczkfayd3iadpjroyfbbrzm1jrkx77qfep7fnuzky7mmwzx4544",
+        "alias": "Distribution Fund: Acai",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1app1es6zce5943ydasp5r5ma77cdcqt6be8qz7f88woayuqstzrjjmob4eb",
+        "alias": "Distribution Fund: Apple",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3carobzdy3ah8pq1xzn38jkc46ozuu8qfx7eqzr8nyiy5yefwbaua6rkh3of",
+        "alias": "Distribution Fund: Carob",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3gojim9wh3t9w5aa8nhjbmkue8mes9frmrhy6wpqb34ikajw8h39hnbbap31",
+        "alias": "Distribution Fund: Goji",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1grapemjtr5n684bu1x38th57x3te8qt6xpsyusjyi4s3u1zdoh8s1czfjz4",
+        "alias": "Distribution Fund: Grape",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3kiwizqifxokn47pp6fh5jmytoaiaeynjhx4u5r6ug13apx3345enf4mr1ep",
+        "alias": "Distribution Fund: Kiwi",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1ycheefobbddbde1p7874ky4ifiwebfuabkyqptunwwk84z3rgzktbqeo9fk",
+        "alias": "Distribution Fund: Lychee",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1mangozo4tnfq97hdtu8z9rdjsqnyo33i7o9aohoxsfbpx8kgwhrfu1rggj8",
+        "alias": "Distribution Fund: Mango",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1me1onk3a11nw3kou14776fuyxtnmoatuqmpeioybffqx6okd53mo1iqmrym",
+        "alias": "Distribution Fund: Melon",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1pearw95xajkzq1nmo6cixo1ugijk6gpm1ifwyegz6un4mt71qb1iw3fhmj4",
+        "alias": "Distribution Fund: Pear",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1ce1ery6hqwyqqyh15m4atcoaywd8rycyapjjooqeg7gi149kmatjbb3wiwx",
+        "alias": "Celery (Dev Salary)",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1zookix8zpo13go1xrbwcmodjfsr8xw5e18smbmz8mh4orkmd33t8zmescpo",
+        "alias": "Allowances",
+        "owner": "Banano",
+        "lore": "The allowances wallet is used to send the banano team their allowances, which they then distribute to the community."
+    },
+    {
+        "address": "ban_3bonus9fwjnwjoyawbdbokze51iucgqwtdyk6e4kqdu39rw8nyzmew5ptxoj",
+        "alias": "Contributor Bonus 3",
+        "owner": "Banano",
+        "lore": "Payout address for rewards members of the community who have contributed to the ecosystem."
+    },
+    {
+        "address": "ban_1bonusncatu5rsrctx1djmgrragfwpj4ujsk939utmtdwskhtiourh8997eh",
+        "alias": "Contributor Bonus 1",
+        "owner": "Banano",
+        "lore": "Payout address for rewards members of the community who have contributed to the ecosystem."
+    },
+    {
+        "address": "ban_3cmfundg444o8ynqhqu638dfdh3jrmdykhqa7c9dkymejobb44ok9sdqxgc6",
+        "alias": "Community Manager Fund",
+        "owner": "Banano",
+        "lore": "Fund used by Banano Community Managers for various events."
+    },
+    {
+        "address": "ban_1rec1ag4gcf6uxeno9xi8hipjh3ictt6wk1pu4hk5wh5836gfxnd75dfzmsm",
+        "alias": "Weak Seed Team Reclaim",
+        "owner": "Banano",
+        "lore": "Recovered Banano from people using addresses as their seeds. If your wallet was swept to this address, please reach out to the Banano team."
+    },
+    {
+        "address": "ban_1tw4ttt3ju6whgdgkhcujrznzy6u4smqok34m6zxffnk7cxprnw7sjaqhinu",
+        "alias": "Twitter Giveaway",
+        "owner": "Banano",
+        "lore": "Funds used to distribute Banano on Twitter for various giveaways and events."
+    },
+    {
+        "address": "ban_3n9c94tpktdt45sfz7mq4d7kwy5uowtnn4uzok4f89rki1mer8esrdfc33kj",
+        "alias": ".ban Registrar Cold Wallet",
+        "owner": "Banano",
+        "lore": "Funds raised by selling .ban domains, to be used to promote BNS and .ban"
+    }
+]

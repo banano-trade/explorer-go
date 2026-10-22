@@ -1,0 +1,56 @@
+{{define "content"}}{{with .Data}}
+<main class="wrap" style="padding-top: 40px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px; max-width: 880px">
+  {{if ne .Problem "down"}}
+  <form role="search" action="/search" style="display: flex; gap: 10px; flex-wrap: wrap; position: relative" autocomplete="off">
+    <label for="sq" class="sr">Search</label>
+    <input id="sq" name="q" type="search" value="{{.Query}}" placeholder="ban_ address, block hash or alias" class="mono" data-suggest style="flex: 1 1 360px; min-width: 0; height: 56px; padding: 0 18px; font-size: 16px; border: 2px solid var(--jungle); border-radius: 12px; background: var(--input); color: var(--ink)"{{if not .Query}} autofocus{{end}}>
+    <button class="btn" type="submit" style="height: 56px">Search</button>
+  </form>
+  {{end}}
+
+  {{if .Results}}
+  <section class="card rows">
+    <div class="toolbar"><h1 style="font-size: 20px; font-weight: 600">Known accounts matching “{{.Query}}”</h1></div>
+    {{range .Results}}
+    <div class="row feed rowlink" style="grid-template-columns: minmax(0,1fr) auto">
+      <a class="stretch" href="/account/{{.Address}}" aria-label="Open {{.Alias}}"></a>
+      <span class="who"><b>{{.Alias}}</b> <span class="mono muted" style="font-size: 13px">{{short .Address}}</span></span>
+      <span class="pill amber c3">{{catLabel .Category}}</span>
+    </div>
+    {{end}}
+  </section>
+  {{else if .Problem}}
+  <section class="card empty">
+    <span style="width: 52px; height: 52px; border-radius: 14px; background: #FFF8CC; display: flex; align-items: center; justify-content: center; color: #6B5A00; font-size: 26px; font-weight: 700" aria-hidden="true">?</span>
+    {{if eq .Problem "checksum"}}
+      <h1 style="font-size: 26px; line-height: 1.2">That address has a typo</h1>
+      <p class="mono muted" style="margin: 0; font-size: 14px; overflow-wrap: anywhere; word-break: break-all">{{.Query}}</p>
+      <p style="margin: 0">It looks like a Banano address, but its checksum doesn't match. Check the last 8 characters.</p>
+    {{else if eq .Problem "nano"}}
+      <h1 style="font-size: 26px; line-height: 1.2">That's a Nano address</h1>
+      <p style="margin: 0">This explorer only covers Banano. Banano addresses start with <span class="mono">ban_</span>.</p>
+    {{else if eq .Problem "noblock"}}
+      <h1 style="font-size: 26px; line-height: 1.2">Our node has never seen this block</h1>
+      <p class="mono muted" style="margin: 0; font-size: 14px; overflow-wrap: anywhere">{{.Query}}</p>
+      <p style="margin: 0">It may be from another network, or it was never published.</p>
+    {{else if eq .Problem "unopened"}}
+      <h1 style="font-size: 26px; line-height: 1.2">This account has no blocks yet</h1>
+      <p class="mono muted" style="margin: 0; font-size: 14px; overflow-wrap: anywhere">{{.Query}}</p>
+      <p style="margin: 0">It picks a representative when it opens. Until then, any rep you choose in your wallet applies from the first block.</p>
+    {{else if eq .Problem "down"}}
+      <h1 style="font-size: 26px; line-height: 1.2">Can't reach our node right now</h1>
+      <p style="margin: 0">Try again in a minute. If it keeps happening, check <a href="/health">network health</a>.</p>
+    {{else}}
+      <h1 style="font-size: 26px; line-height: 1.2">Nothing found{{if .Query}} for “{{.Query}}”{{end}}</h1>
+      <p style="margin: 0">Search takes a full <span class="mono">ban_</span> address, a 64-character block hash, or part of a known account's name.</p>
+    {{end}}
+    <div style="display: flex; flex-wrap: wrap; gap: 8px">
+      <a class="btn" href="/">Go home</a>
+      <a class="btn2" href="/known">Browse known accounts</a>
+    </div>
+  </section>
+  {{else}}
+  <p class="muted" style="margin: 0">A full address or 64-character hash opens the page right away. Anything else searches the names of known accounts.</p>
+  {{end}}
+</main>
+{{end}}{{end}}

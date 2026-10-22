@@ -1,0 +1,84 @@
+{{define "content"}}{{with .Data}}
+<section class="hero">
+  <div class="wrap stack" style="padding-top: 56px; padding-bottom: 64px; gap: 18px">
+    <h1>Explore the Banano ledger</h1>
+    <p>Look up any account, block or known name. Every page comes straight from our own node.</p>
+    <form role="search" action="/search" style="width: 100%; max-width: 860px; display: flex; gap: 10px; flex-wrap: wrap; position: relative" autocomplete="off">
+      <label for="q" class="sr">Search</label>
+      <input id="q" name="q" type="search" placeholder="ban_ address, block hash or name" class="mono" data-suggest>
+      <button class="btn" type="submit" style="height: 56px">Search</button>
+    </form>
+    <div style="display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 15px; align-items: baseline">
+      <span>Try</span>
+      <a href="/account/ban_1jung1eb3uomk1gsx7w6w7toqrikxm5pgn5wbsg5fpy96ckpdf6wmiuuzpca">JungleTV</a>
+      <a href="/account/ban_1ka1ium4pfue3uxtntqsrib8mumxgazsjf58gidh1xeo5te3whsq8z476goo">Kalium</a>
+      <a href="/block/73FDC8927A4BEF21CA369624C3498B4C095CE51933F05269D51E78A0B6CA14FB" class="mono" style="font-size: 14px">73FDC892…14FB</a>
+      <a href="/delegate">pick a good rep</a>
+    </div>
+  </div>
+</section>
+
+<main class="wrap" style="padding-top: 32px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <section class="stats" aria-label="Network at a glance">
+    <a class="card stat statlink" href="/blocks"><span class="label">Blocks</span><span class="v">{{.Blocks}}</span><span class="s">all cemented</span></a>
+    {{if .Accounts}}<a class="card stat statlink" href="/richlist"><span class="label">Accounts</span><span class="v">{{.Accounts}}</span><span class="s">opened</span></a>{{end}}
+    <a class="card stat statlink" href="/representatives"><span class="label">Online reps</span><span class="v">{{.OnlineReps}}</span><span class="s">{{if .Principal}}{{.Principal}} principal{{else}}Nakamoto {{.Nakamoto}}{{end}}</span></a>
+    {{if .Circulating}}<a class="card stat statlink" href="/network"><span class="label">Circulating</span><span class="v">{{shortBan .Circulating}} BAN</span><span class="s">of {{shortBan .Total}} total</span></a>{{end}}
+    {{if .PriceUSD}}<div class="card stat"><span class="label">Price</span><span class="v" data-price="{{.PriceUSD}}">{{usdPrice .PriceUSD}}</span><span class="s">{{with .Circulating}}cap {{usdOf . $.Data.PriceUSD}}{{else}}per BAN{{end}}</span></div>{{end}}
+    {{if .MedianMS}}<a class="card stat statlink" href="/network"><span class="label">Confirms in</span><span class="v">{{.MedianMS}} ms</span><span class="s">median, live</span></a>{{end}}
+  </section>
+
+  <section style="display: flex; flex-wrap: wrap; gap: 24px; align-items: flex-start">
+    <div class="card rows" style="flex: 999 1 560px; min-width: 0">
+      <div class="toolbar">
+        <span class="livedot" data-livedot></span>
+        <h2 style="font-size: 18px; font-weight: 600">Live confirmations</h2>
+        {{if .CPS}}<span class="mono faint" style="font-size: 13px">{{if lt .CPS 0.1}}under 0.1{{else}}{{printf "%.1f" .CPS}}{{end}} blocks/s</span>{{end}}
+        <span class="spacer"></span>
+        <a href="/blocks" style="font-weight: 500">All blocks</a>
+      </div>
+      <div data-live="/api/live?small=1" data-keep="10">
+      {{range .Feed}}{{template "feedrow" .}}{{else}}
+      <div class="row" data-empty><span class="muted">No confirmations seen yet.</span></div>
+      {{end}}
+      </div>
+    </div>
+
+    <div class="stack" style="flex: 1 1 340px; min-width: 0; gap: 24px">
+      <div class="card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 14px">
+        <div style="display: flex; align-items: baseline; justify-content: space-between; gap: 12px">
+          <h2 style="font-size: 18px; font-weight: 600">Top representatives</h2>
+          <a href="/representatives" style="font-weight: 500">All {{.OnlineReps}} online</a>
+        </div>
+        {{range .TopReps}}
+        <div class="stack" style="gap: 6px">
+          <div style="display: flex; justify-content: space-between; gap: 12px"><a href="/rep/{{.Account}}" style="font-weight: 500; color: var(--ink)">{{if .Name}}{{.Name}}{{else}}{{short .Account}}{{end}}</a><span class="mono muted">{{printf "%.1f" .Pct}}%</span></div>
+          <div class="track"><span style="width: {{printf "%.1f" .Pct}}%; background: var(--jungle)"></span></div>
+        </div>
+        {{end}}
+        <p style="margin: 0; font-size: 14px" class="muted">{{.Nakamoto}} representatives together hold over 67% of online weight. <a href="/delegate">Pick a good rep</a></p>
+      </div>
+      {{if .Circulating}}
+      <div class="card" style="padding: 18px 20px; display: flex; flex-direction: column; gap: 12px">
+        <h2 style="font-size: 18px; font-weight: 600">Supply</h2>
+        <div class="stackbar" role="img" aria-label="Circulating {{printf "%.1f" .CircPct}}%"><div style="width: {{printf "%.2f" .CircPct}}%; background: var(--jungle)"></div><div style="flex: 1; background: var(--yellow)"></div></div>
+        <div class="kv2"><span><span class="sw" style="background: var(--jungle)"></span>Circulating</span><span class="mono">{{bigBan .Circulating}}</span></div>
+        <div class="kv2"><span><span class="sw" style="background: var(--yellow)"></span>Undistributed</span><span class="mono">{{bigBan .Dist}}</span></div>
+        <a href="/network" style="font-weight: 500">Network details</a>
+      </div>
+      {{end}}
+    </div>
+  </section>
+</main>
+<template id="blrow">{{template "feedrow" sampleFeed}}</template>
+{{end}}{{end}}
+
+{{define "feedrow"}}
+<div class="row feed rowlink">
+  <a class="stretch" href="/block/{{.Hash}}" aria-label="Open block {{shortHash .Hash}}" data-f="href"></a>
+  <span class="c1"><span class="pill {{typeClass .Type}}" data-f="type">{{title .Type}}</span></span>
+  <a class="who" href="/account/{{.Account}}" data-f="who"><b data-f="name">{{.Name}}</b> <span class="mono" style="font-size: 13px; color: var(--ink3)" data-f="short">{{short .Account}}</span></a>
+  <span class="mono c2 r" style="font-weight: 600"><span data-f="amount" data-sign>{{if .Amount}}{{if eq .Type "send"}}−{{else if eq .Type "receive"}}+{{end}}{{ban .Amount}}{{end}}</span> <span class="faint" style="font-weight: 400">BAN</span></span>
+  <span class="c3 r muted" style="font-size: 14px" data-ago="{{.Time}}" data-f="age">{{agoI .Time}}</span>
+</div>
+{{end}}

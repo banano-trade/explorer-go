@@ -1,0 +1,86 @@
+[
+    {
+        "address": "ban_1gxx3dbrprrh9ycf1p5wo9qgmftppg6z7688njum14aybjkaiweqmwpuu9py",
+        "alias": "BananoLooker Donation"
+    },
+    {
+        "address": "ban_3j8gwrkc7qgx11rrncdw8bzuuo4ojwp3xkawspefm3sbac3s5i6f48dgewfd",
+        "alias": "Banano HUB",
+        "owner": "MKZI",
+        "lore": "Donation address for hub.banano.network, the information & link repository for monkeys using the Banano cryptocurrency network."
+    },
+    {
+        "address": "ban_1gbtqa74cexnsm3fpaihi9mo6bo7fha9e5w5go5jphaoqb44ddft36i6utxp",
+        "alias": "Freerice 6.9 tip"
+    },
+    {
+        "address": "ban_1ricex9kie3if1qros9s84joa6hnqd97nqc9fo58ca4ro3b1hnpyujjixoyt",
+        "alias": "Freerice Donation"
+    },
+    {
+        "address": "ban_1xhertod5q3w8o5zuu893epgnyb3f8oobwy81kozs3pyhw3hbmsboqiodmfr",
+        "alias": "Nanners Donation",
+        "owner": "VØID",
+        "lore": "Donation address for the nanners.cc site, which provides stats and information on folding at home payouts."
+    },
+    {
+        "address": "ban_3r7xbz8u5wj4wgkhmojzq6mmiq7ekawtarnfgwsneeck8ktn6zy58ax3ejkn",
+        "alias": "F@H Points-to-Banano Calculator Donation",
+        "owner": "TurtleByte"
+    },
+    {
+        "address": "ban_3huffb6oj7uppkxu6su9fii943w61gf4cmyzc9tex6izrf6xqaopwdiiib9b",
+        "alias": "Crypto For The Homeless Donation"
+    },
+    {
+        "address": "ban_1gscd7w9bke8ex8hbtyspw5eqamjpdn8xop593w9uhuqmoumk4k7ucht8gs3",
+        "alias": "TNV Donation",
+        "owner": "TNV"
+    },
+    {
+        "address": "ban_3greenxg9oxkaei556wrxwzwdxie4ehmzhmi7fyztofhantxjysntceq5sx5",
+        "alias": "BananoForest Organization 1",
+        "owner": "BananoForest"
+    },
+    {
+        "address": "ban_3green9hp4hg8ejbpiq5fykktaz3scjoop9nzinq8m8kxu1xi6fi5ds3gwm8",
+        "alias": "BananoForest Organization 2",
+        "owner": "BananoForest"
+    },
+    {
+        "address": "ban_3greengegg8of5dqjqfzqzkjkkygtaptn39uyja4xncd13eqftcpw4r4xmfb",
+        "alias": "BananoForest Organization 3",
+        "owner": "BananoForest"
+    },
+    {
+        "address": "ban_3greenp7kzetigfjcfgbis1ad63m4hyyyit9usd1g4byuxg81g79fc8aiwtr",
+        "alias": "BananoForest Organization 4",
+        "owner": "BananoForest"
+    },
+    {
+        "address": "ban_3banobotojqz8pkm1uectwb8baqjkfhq38e6fbwdrp51qjnwemepzc4ytowy",
+        "alias": "Banoboto donation",
+        "owner": "Banoboto"
+    },
+    {
+        "address": "ban_36ik1fxkiihc7rzeb7zg7ttkirynf5fsonx3jcdqarxre9qf5u8qqoo53jt5",
+        "alias": "i can haz nano donation",
+        "owner": "monke42"
+    },
+    {
+        "address": "ban_1upgmfaoycc17cc88u68xeee3qe7ct6remkq3g3t9rqf9nb81ygb6h3xn13i",
+        "alias": "CSquared donation",
+        "owner": "u/csquarednz"
+    },
+    {
+        "address": "ban_1dpe11rjii8r4k448gbgfpbg18p8444edayaq4to3hsquha4qhy65cjbtk8b",
+        "alias": "Legacy Creeper Donation",
+        "owner": "meltingice"
+    },
+    {
+        "address": "ban_3rs5ne56m63pa77zrgcaj9s9g3g4iusa5w5tcoa1ehpotubarpdwrouu5wjc",
+        "alias": "BananoGPT deposit",
+        "owner": "Nano-GPT",
+        "lore": "Permanent Nanswap deposit address to top up balance for Nano-GPT's AI bot service on Banano's Discord server."
+    }
+]

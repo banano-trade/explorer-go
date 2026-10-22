@@ -1,0 +1,362 @@
+[
+    {
+        "address": "ban_3bdrip3ir5d9y3i1qi5z47pwcmd6jm39xzzzxnebrwfyoje63qa5dmnhm8f9",
+        "alias": "Banano Drip"
+    },
+    {
+        "address": "ban_1faucetjuiyuwnz94j4c7s393r95sk5ac7p5usthmxct816osgqh3qd1caet",
+        "alias": "Banano Faucet",
+        "owner": "mirandaniel"
+    },
+    {
+        "address": "ban_3pp1antnfudas6ad44kwpad4jb376cihftskq9ne76hazosi654gjdohriai",
+        "alias": "Banano Powerplant",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3runnerrxm74165sfmystpktzsyp7eurixwpk59tejnn8xamn8zog18abrda",
+        "alias": "Banano Runner",
+        "owner": "Banano",
+        "lore": "Distribution address for Banano Runner, a game launched back in 2018."
+    },
+    {
+        "address": "ban_3uf1gx114fqm9ppiwp3sw1mywzzr9d8uwhrw9e85zpgdt48eopruqnqpdb68",
+        "alias": "banano-faucet[.]herokuapp[.]com",
+        "owner": "TNV"
+    },
+    {
+        "address": "ban_1kq1zmwjz1fh8mauqhb3u88j7rizcdjic851f7kgmnoishnmcm7m15xkxr1i",
+        "alias": "banano.vegas",
+        "owner": "Banano Vegas"
+    },
+    {
+        "address": "ban_3craftbqpyfbr4gdjhdwnrsd4zwr73wg6xojnr61nres8mnbz5x1o6563qxc",
+        "alias": "BananoCraft",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1j3rqseffoin7x5z5y1ehaqe1n7todza41kdf4oyga8phps3ea31u39ruchu",
+        "alias": "Banbucket.ninja"
+    },
+    {
+        "address": "ban_16tduo1cu9ydp8ris3o5w4rm96myqics5o8tjw8s13ja8owba6xfpwc8399r",
+        "alias": "Banroulettecom Hot Wallet",
+        "owner": "BanRoulette"
+    },
+    {
+        "address": "ban_1b1ack1188caohzjdj65uarnk4kobzrnr3q3oc3bew5rfkyqxzu81zhjgp1e",
+        "alias": "Black Monkey",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3temho9bnim1acqzwwa673yeggeudzo6y857y4t38pmu6jx79amtku8szp3s",
+        "alias": "Black Monkey Rount 1",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1boompow14irck1yauquqypt7afqrh8b6bbu5r93pc6hgbqs7z6o99frcuym",
+        "alias": "BoomPoW",
+        "owner": "Banano",
+        "lore": "Payment address for contributing towards the distributed proof-of-work system for the Banano and Nano blockchains."
+    },
+    {
+        "address": "ban_1crane864e1cn1g3p9mrduf49hp86gfgfosp8rib43smxxuqp3phq1yiu58k",
+        "alias": "Crane Faucet",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3disc5557sb9ri99h7czmn6ms5kcfsafnsxekarg1pp9f3a1ik4ndjcb9cod",
+        "alias": "Discord Beta Rewards",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1treatf1gc4acpgjqzg9jxthwqnew7gef5wf7mru4ffyeb9ayj61rejzs5st",
+        "alias": "Discord Halloween",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1santayq7qgtoar9s9kx9ur5jw6ustty741bxnidanf8miuakju7kqb8imwo",
+        "alias": "Discord Santa",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3dnbrpg7abg7fuhryp3jq5r56ka4aijjen6ysxushujq9r69f31ip1dbx3qc",
+        "alias": "Dungeons and Banano",
+        "owner": "Zanefold"
+    },
+    {
+        "address": "ban_3346kkobb11qqpo17imgiybmwrgibr7yi34mwn5j6uywyke8f7fnfp94uyps",
+        "alias": "faucet[.]prussia[.]dev",
+        "owner": "Prussia"
+    },
+    {
+        "address": "ban_3fo1d1ng6mfqumfoojqby13nahaugqbe5n6n3trof4q8kg5amo9mribg4muo",
+        "alias": "Folding",
+        "owner": "Banano",
+        "lore": "Banano Miner payout address. Earn Banano for supporting science by running Folding@home."
+    },
+    {
+        "address": "ban_1rp3ke75c8a3t5mkzekibo8w4mxzydrie8xzwqmkajfk9ww76f7wzbhd5bmt",
+        "alias": "getbanano[.]cc",
+        "owner": "IMalFect"
+    },
+    {
+        "address": "ban_1jung1eb3uomk1gsx7w6w7toqrikxm5pgn5wbsg5fpy96ckpdf6wmiuuzpca",
+        "alias": "JungleTV",
+        "owner": "gbl08ma"
+    },
+    {
+        "address": "ban_1jtprixunfus5mozkzj5gtfm79b54p3pwnje8snh9ugu998cfk13qceepwn5",
+        "alias": "JungleTV Prize Faucet",
+        "owner": "gbl08ma",
+        "lore": "Payout address for JungleTV prizes and events suchs as Tunesdays."
+    },
+    {
+        "address": "ban_1rainrjfauss66rbormm3td5gucnnza41w78qepdmzy15dprgb6qrp6x516h",
+        "alias": "JungleTV Rain",
+        "owner": "gbl08ma",
+        "lore": "JungleTV rain address. Any funds here will be split between all active viewers at the end of the next video."
+    },
+    {
+        "address": "ban_1skiph85moxba9eqzpxejazxcaqfddq8xwsdgjn7yy4t1ano81oncieo6bib",
+        "alias": "JungleTV Skip",
+        "owner": "gbl08ma"
+    },
+    {
+        "address": "ban_3kucodzfu56iiqxa5krw4wk1hqgw15ifzqriiouyp66x4nkaqup4tf53hihc",
+        "alias": "KuCoin IT AMA",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3faucb1o9ifundznqw6xn1xkybztz4zfbn4fw95ujfy48ds1ebayzycfsspk",
+        "alias": "Meme Faucet",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1monkeyt1x77a1rp9bwtthajb8odapbmnzpyt8357ac8a1bcron34i3r9y66",
+        "alias": "MonkeyTalks",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1nice4sy9fgcb8qxbx7nkj9ajc79aapqnayrfk4gow184mgnfm49ncstg36w",
+        "alias": "NiceBanano",
+        "owner": "Sau412"
+    },
+    {
+        "address": "ban_1mine1fnjzz84gwapyqhfw1d115zst859pf1u5rzge8hehzjg9ztchokmghb",
+        "alias": "PowerPlant Old",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3j67xu1yuhfbezm7myw7bhzekj1mdzjkhhtctrqz5d9sanar8wt6hkgexzwn",
+        "alias": "Volcano",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_1wa1ker54qq93emzpxqkfo5cjfh88qhhx18r4yi3xj6jhbb367ukgkh3d3gw",
+        "alias": "Walker Cold",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3hotwkr9xuk8c9eixqafn8jf8oxzwagc8rtrgmuf973s5c96hp4g9ix3jw9c",
+        "alias": "Walker Hot",
+        "owner": "Banano"
+    },
+    {
+        "address": "ban_3eeq61ea33jdds5x37otx51esi8wsnxxjc8spjajyq7pj8h3nodkd19pride",
+        "alias": "Pronoun Faucet"
+    },
+    {
+        "address": "ban_1questzx4ym4ncmswhz3r4upwrxosh1hnic8ry8sbh694r48ajq95d1ckpay",
+        "alias": "BananoBrowserQuest",
+        "owner": "running-coder"
+    },
+    {
+        "address": "ban_3sinkoff1yj9z5fougwao1gbjtsmb98u1j5p9kcrndqcc4irdxgzsjbem96e",
+        "alias": "Banano Forest Faucet",
+        "owner": "BananoForest"
+    },
+    {
+        "address": "ban_3tn9xt9sxbyw9injikki3yis5fbn6m47x37gco5cw6e6x6z7z4639cdgzke6",
+        "alias": "Perry’s Banano Faucet",
+        "owner": "PerryPal"
+    },
+    {
+        "address": "ban_1sexmes51h4udqk58dt3rbbpkssbircc7giryewd59q3t5fmfe9crbewjk5y",
+        "alias": "Nord Banano Faucet",
+        "owner": "Yattagu"
+    },
+    {
+        "address": "ban_3x8hzeb8spb6e36y7yjgo6esmeahgphq1mhp545ofouuu5enrne5nzwkdasb",
+        "alias": "BauCorp Faucet"
+    },
+    {
+        "address": "ban_39665maxw96iifne3izma1icdmomxy3o5z35hqzh9s13xw7si4opp5xxyg8g",
+        "alias": "BananoTime!'s Banano Faucet",
+        "owner": "u/MrNoSock"
+    },
+    {
+        "address": "ban_3byzbsf7tfcbwopqfqd4tw63u78ydnk8hbrqz5u5fh9ywptpwnonfb4bjzi6",
+        "alias": "K3i's Free Banano Faucet",
+        "owner": "K3i"
+    },
+    {
+        "address": "ban_3faubo4bfzexkbodi67c74ut1a6it64chofgobbag87yfmy1x457jbsdccd4",
+        "alias": "Bonobo Banano Faucet"
+    },
+    {
+        "address": "ban_1gori11a7fz3tee6aydqxcehttzbuk93pjsctanfkgqmesa3dmo1cyw89xex",
+        "alias": "Gorilla Nation"
+    },
+    {
+        "address": "ban_33umod1td1x1szyjxj1a4c66j8s5escrii6ptnykz9axcsce93dqguwgwf78",
+        "alias": "Try Banano!"
+    },
+    {
+        "address": "ban_1barre1777qqdcg86788tk6ojy9jmkyb8ridreezbgkhr7btnoqcntejrxhf",
+        "alias": "Barrel O' Bananos"
+    },
+    {
+        "address": "ban_3swiperfi43zpunak44hw6rfbrruwfj1aobm6gwjcbd65sy6b3kjfeunkjxc",
+        "alias": "Banano Swiper",
+        "owner": "Shay"
+    },
+    {
+        "address": "ban_1rxpayorfy18zp5ospz89njtu3akhmyszot4b16z6yxy8tkeffqfkc6r84ok",
+        "alias": "BanRX",
+        "owner": "Shay"
+    },
+    {
+        "address": "ban_1picturessx4aedsf59gm6qjkm6e3od4384m1qpfnotgsuoczbmhdb3e1zkh",
+        "alias": "Banano.pictures",
+        "owner": "Randomblock1"
+    },
+    {
+        "address": "ban_19pe1ionxqi6eu1uxs1k3tqxd36rkdjue8f3b5t3sbzwy13jg6z5ujfm76d6",
+        "alias": "Pelion Vault Faucet",
+        "owner": "RobStalone"
+    },
+    {
+        "address": "ban_1bmcmeowun9kpehd3mx8zjnkda8kg6cdrhw9f6q41jq78sj3gym9zznkd1a6",
+        "alias": "Black Monkey CryptomonKeys",
+        "owner": "Banano",
+        "lore": "Distribution address for the Black Monkey discord-based game, available in the CryptomonKeys discord."
+    },
+    {
+        "address": "ban_1monkecrqoqr6j6qzhtd9i8x49ujdnoqt7ramt9jmhd543icsrx5accoqtd5",
+        "alias": "icanhaznano.monke42.link",
+        "owner": "monke42"
+    },
+    {
+        "address": "ban_36seefx46pwcpyp6a8kukybamqioam6a7jef88s8esjpubyc8urccebjqgyj",
+        "alias": "Nanswap Faucet",
+        "owner": "Nanswap"
+    },
+    {
+        "address": "ban_3dybnpbt61kokfk6u8c1uuyyed4apy8349qwb5ip9m71kschfoeukeepfzr7",
+        "alias": "Nanswap Referral Rewards",
+        "owner": "Nanswap"
+    },
+    {
+        "address": "ban_3jyqzypmcn94dmyp7eb3k85sug1568xwehzx738o5jniaxaf1jpxdakjz96r",
+        "alias": "CSquared's Faucet",
+        "owner": "CSquared"
+    },
+    {
+        "address": "ban_3jzi3modbcrfq7gds5nmudstw3kghndqb1k48twhqxds3ytyj4k7cf79q5ij",
+        "alias": "Banoboto's Future Faucet"
+    },
+    {
+        "address": "ban_3w91yp9ufjhpzt98xzddfmnoo8bm51ic3fp3mmx4mqbocqqde7dii1w8g4b6",
+        "alias": "GoBanano"
+    },
+    {
+        "address": "ban_3sbqs38uoi9z34z5xeof5y4qjfc41n9rgr4hhhcu5zh5two9xrh4she1n8hs",
+        "alias": "BananoTime! Giveaway Bot",
+        "owner": "u/MrNoSock"
+    },
+    {
+        "address": "ban_3k1x6ekfwh513bgkzimh53ud5ijq1k4fdcems7otzxomumzt69fh4rca7emy",
+        "alias": "banfaucet.com"
+    },
+    {
+        "address": "ban_1moondripyui11a5bode7q7gf4m9itad7m8gd3e9wu4qortrdpyj9d4ngw5z",
+        "alias": "Moonano Faucet",
+        "owner": "Somoon"
+    },
+    {
+        "address": "ban_3ze6byhismfpj8jhuda6fq1a7nkniq7t5soet9k58y3egt3rco66j69fdksg",
+        "alias": "faucets.app faucet",
+        "owner": "ZOYANX"
+    },
+    {
+        "address": "ban_1j6yu5w885996tgmmgsy7j61wuca65oc493j4xx6dn3eh5yrgaf94oseg4ui",
+        "alias": "Vertical's Ban faucet",
+        "owner": "VerticalThings"
+    },
+    {
+        "address": "ban_3f1o95qeeg1zignw11ew5sfaxhzogsj3hzm377xjtmab8hwz535p6f96i5uu",
+        "alias": "Yet Another BAN Faucet"
+    },
+    {
+        "address": "ban_3y3ajo3fnmkczp8q9z6u88oajzazs9c3kpqwus5ponq9ktpfz5oztp8npuk6",
+        "alias": "banano.design",
+        "owner": "awaisch"
+    },
+    {
+        "address": "ban_1akutedg199khq5ujhy8a9yaywhwigihja8baoqn6pwjpquiejrkcdpoo1yx",
+        "alias": "Banano Tree NFT Faucet",
+        "owner": "Aku",
+        "lore": "A Banano faucet of Aku that distributes on-chain Banano AKU NFTs."
+    },
+    {
+        "address": "ban_3mkys1ot6iqq7ebmawpdognrbgzkos6hs765c8xjrp7gnce7akbntouxr4m5",
+        "alias": "MonkeySlots Cold",
+        "owner": "Banano",
+        "lore": "Cold wallet for the monKeyslots faucet. Allows cryptomonKeys holders to win some Banano."
+    },
+    {
+        "address": "ban_1s1hot8adygxuj96f35dicnmd47cctazoaiia9uduk731nqt6fuenfax9ckt",
+        "alias": "MonkeySlots Hot",
+        "owner": "Banano",
+        "lore": "Hot wallet for the monKeyslots faucet. Allows cryptomonKeys holders to win some Banano."
+    },
+    {
+        "address": "ban_3fww7iebi9xq4a9j4mujxmqtfke1ad6g6ta13fijcxni4scasoyzdxauegj3",
+        "alias": "MonkeySlots Warm",
+        "owner": "Banano",
+        "lore": "Intermediary wallet for the monKeyslots faucet. Allows cryptomonKeys holders to win some Banano."
+    },
+    {
+        "address": "ban_1g3f1hjs4i54ztrkdftartpjc5fi9hi8pq7arggp6k16nbagiw63jnubondf",
+        "alias": "MEXC Refund Bot",
+        "owner": "King Saul",
+        "lore": "MEXC Refund Bot. Refunds Withdrawal Fee charged by MEXC."
+    },
+    {
+        "address": "ban_3zew7e6kq45zukdgs7qf675ctn5wwa95igozbmhdsojza48mpsbwhjo5a3nu",
+        "alias": "thefreebananofaucet.com",
+        "owner": "Mall_Vacation"
+    },
+    {
+        "address": "ban_1ncto1yztp7xu98othx6t5qfifo4qag1o6ziuqkkydzu88gqz5wnb5yspke8",
+        "alias": "BANXNO Faucet",
+        "owner": "chengen_geo"
+    },
+    {
+        "address": "ban_1bingof4zqro34ehxrcxnhcikgnh85jjw9axqggcifadj1mc88jsc3ct4di7",
+        "alias": "JungleTV application: Bingo",
+        "owner": "QRV",
+        "lore": "Wallet to distribute mini Banano rewards for users participating in Bingo on JungleTV."
+    },
+    {
+        "address": "ban_3iuhae1nq4e1k4r59h4h3p16x5m5c7czmuetm81xmkjeqensxyk3irocz9yy",
+        "alias": "IamFaucet",
+        "owner": "IamGabriel"
+    },
+    {
+        "address": "ban_3sasp5kddnz7n9gi56ijidc6yi6butjguwbg1cfgiyjqunhhotbgddh4zx1z",
+        "alias": "Slip-a-Swole",
+        "owner": "cmasta"
+    }
+]

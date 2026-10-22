@@ -1,0 +1,69 @@
+{{define "content"}}{{with .Data}}{{$r := .Rep}}
+<main class="wrap" style="padding-top: 28px; padding-bottom: 64px; display: flex; flex-direction: column; gap: 24px">
+  <a href="/delegate" style="font-weight: 500; font-size: 15px">← All rep scores</a>
+
+  {{if .Mine}}<div class="notice"><span>Your account <a href="/account/{{.Mine}}" class="mono">{{short .Mine}}</a> delegates to this representative.</span></div>{{end}}
+
+  <section class="card" style="padding: 28px; display: flex; flex-wrap: wrap; gap: 24px; align-items: center">
+    <div class="grade {{gradeClass $r.Score.Grade}}" role="img" aria-label="Grade {{$r.Score.Grade}}">{{gradeLabel $r.Score.Grade}}</div>
+    <div class="stack" style="flex: 1 1 420px; min-width: 0; gap: 8px">
+      <div style="display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 14px">
+        <h1 style="font-size: 36px; line-height: 1.1">{{repName $r}}</h1>
+        <span style="font-size: 18px" class="muted">Rep score <b style="color: {{partColor $r.Score.Points 100}}; font-size: 22px">{{$r.Score.Points}}</b> / 100</span>
+      </div>
+      <a class="addr" href="/account/{{$r.Account}}" style="font-size: 14px">{{addrHTML $r.Account}}</a>
+      <p style="margin: 0; font-size: 18px; color: var(--ink2); max-width: 720px"><b>{{.Verdict}}</b> {{.Reason}}</p>
+    </div>
+  </section>
+
+  <section class="two">
+    <div class="stack" style="gap: 24px; min-width: 0">
+      <div class="card rows">
+        <h2 style="padding: 18px 24px; font-size: 20px; font-weight: 600">Where the points went</h2>
+        {{range $r.Score.Parts}}
+        <div class="pt">
+          <span class="t">{{.Name}}</span><span class="n" style="color: {{partColor .Points .Max}}">{{.Points}} <small>/ {{.Max}}</small></span>
+          <span class="b"><i style="width: {{pctOf .Points .Max}}%; background: {{partColor .Points .Max}}"></i></span>
+          <span class="why">{{.Why}}.</span>
+        </div>
+        {{end}}
+      </div>
+
+      <div class="card" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 12px">
+        <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
+          <h2 style="font-size: 20px; font-weight: 600">Last 30 days</h2>
+          <span style="font-size: 14px" class="muted">Each square is a day; amber and orange mean time offline</span>
+        </div>
+        <div class="days" role="img" aria-label="Daily uptime for the last 30 days">
+          {{range .Days}}<i style="background: {{.Color}}" title="{{.Label}}"></i>{{end}}
+        </div>
+        <p style="margin: 0; font-size: 14px" class="muted">{{if $r.Uptime.Tracked}}{{if gt $r.Uptime.OfflineMins 0}}About {{mins $r.Uptime.OfflineMins}} offline in the last 30 days{{if ge $r.Uptime.LastOutage 0}}; the latest outage ended {{mins $r.Uptime.LastOutage}} ago{{end}}.{{else}}No time offline in the last 30 days.{{end}}{{else}}Not tracked yet: uptime is recorded from the moment a rep is first seen online.{{end}}</p>
+      </div>
+    </div>
+
+    <div class="stack" style="gap: 24px; min-width: 0">
+      <div class="card" style="padding: 20px 24px">
+        <h2 style="margin: 0 0 6px; font-size: 20px; font-weight: 600">Facts</h2>
+        <dl style="margin: 0">
+          <div class="fact" style="border-top: 0"><dt class="label">Voting weight</dt><dd><span class="mono">{{bigBan $r.Weight}}</span> BAN · {{f2 $r.SharePct}}% of online</dd></div>
+          {{if .Delegators}}<div class="fact"><dt class="label">Delegators</dt><dd><a href="/account/{{$r.Account}}?tab=delegators" class="mono">{{group .Delegators}}</a> accounts</dd></div>{{end}}
+          <div class="fact"><dt class="label">Node</dt><dd>{{if $r.HasNode}}V{{$r.Version}} · {{$r.Peers}} peers{{if gt $r.Lag 0}} · {{group $r.Lag}} blocks behind{{end}}{{else}}Not visible in our node's telemetry{{end}}</dd></div>
+          {{if $r.SharedWith}}<div class="fact"><dt class="label">Shares a server with</dt><dd>{{range $i, $a := $r.SharedWith}}{{if $i}}, {{end}}<a href="/rep/{{$a}}">{{with index $.Data.Snap.By $a}}{{repName .}}{{end}}</a>{{end}}</dd></div>{{end}}
+          <div class="fact"><dt class="label">Tracked since</dt><dd>{{if $r.Uptime.Tracked}}{{agoI $r.Uptime.Since.Unix}}{{else}}not yet{{end}}</dd></div>
+        </dl>
+      </div>
+
+      {{if and .Alts (ne $r.Score.Grade "A")}}
+      <div class="card" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 4px; border-color: var(--jungle)">
+        <h2 style="font-size: 20px; font-weight: 600">Delegating to {{repName $r}}?</h2>
+        <p style="margin: 0 0 6px; color: var(--ink2)">Switching takes one setting in your wallet, and your BAN never moves. These A-grade reps are small and reliable:</p>
+        {{range .Alts}}
+        <div class="alt"><span class="g gA">A</span><span class="stack" style="min-width: 0"><a href="/rep/{{.Account}}" style="font-weight: 600; color: var(--ink)">{{repName .}}</a><span class="mono muted" style="font-size: 13px">{{f2 .SharePct}}%{{if ge .Uptime.Month 0.0}} · {{f2 .Uptime.Month}}% uptime{{end}}</span></span><button type="button" class="ib" style="margin-left: auto" aria-label="Copy {{repName .}}'s address" data-copy="{{.Account}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg></button></div>
+        {{end}}
+        <a class="btn" href="/delegate" style="margin-top: 10px">See all great picks</a>
+      </div>
+      {{end}}
+    </div>
+  </section>
+</main>
+{{end}}{{end}}
