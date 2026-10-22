@@ -1,6 +1,7 @@
 package live
 
 import (
+	"fmt"
 	"io"
 	"log/slog"
 	"path/filepath"
@@ -92,5 +93,23 @@ func TestVotes(t *testing.T) {
 	n, by := f.VoteShare()
 	if n != 2 || by["ban_r1"] != 2 || by["ban_r2"] != 1 {
 		t.Fatal(n, by)
+	}
+}
+
+func TestVotesBeforeConfirmation(t *testing.T) {
+	f := New("", "", slog.New(slog.NewTextHandler(io.Discard, nil)))
+	old := time.Now().Add(-time.Minute).UnixMilli()
+	f.addVote("ban_r1", []string{"X", "OLDBLOCK"}) // X not confirmed yet
+	f.add(Confirmation{Hash: "X", Time: old})
+	f.addVote("ban_r2", []string{"X"}) // a vote after confirmation
+	n, by := f.VoteShare()
+	if n != 1 || by["ban_r1"] != 1 || by["ban_r2"] != 1 {
+		t.Fatal(n, by)
+	}
+	for i := 0; i < maxPending+10; i++ { // flood of unrelated hashes
+		f.addVote("ban_r3", []string{fmt.Sprint("H", i)})
+	}
+	if n, by := f.VoteShare(); n != 1 || by["ban_r1"] != 1 {
+		t.Fatal("flood wiped real votes", n, by)
 	}
 }

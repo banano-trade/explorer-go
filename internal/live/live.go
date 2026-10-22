@@ -60,7 +60,9 @@ type Feed struct {
 	lastMsg   time.Time
 	since     time.Time // first confirmation seen, survives restarts
 	subs      map[chan Confirmation]struct{}
-	votes     map[string]*voteSet // block hash -> reps that voted
+	votes     map[string]*voteSet // recently confirmed block hash -> reps that voted
+	pending   map[string]*voteSet // votes for blocks not (yet) confirmed, kept briefly
+	known     map[string]bool     // hashes in recent
 }
 
 type voteSet struct {
@@ -68,10 +70,13 @@ type voteSet struct {
 	reps  map[string]struct{}
 }
 
-const keepVotes = 20000 // blocks; old ones are dropped
+// Votes for unconfirmed blocks wait at most this long for the confirmation.
+const pendingFor = 2 * time.Minute
+
+const maxPending = 200000
 
 func New(url, path string, log *slog.Logger) *Feed {
-	f := &Feed{URL: url, Path: path, Log: log, subs: map[chan Confirmation]struct{}{}, votes: map[string]*voteSet{}}
+	f := &Feed{URL: url, Path: path, Log: log, subs: map[chan Confirmation]struct{}{}, votes: map[string]*voteSet{}, pending: map[string]*voteSet{}, known: map[string]bool{}}
 	if path != "" {
 		if err := f.load(); err != nil && !errors.Is(err, os.ErrNotExist) {
 			log.Warn("live snapshot", "err", err)
@@ -229,8 +234,14 @@ func (f *Feed) add(c Confirmation) {
 		f.since = time.UnixMilli(c.Time)
 	}
 	f.recent = append(f.recent, c)
+	f.known[c.Hash] = true
+	if v := f.pending[c.Hash]; v != nil { // votes that arrived before the confirmation
+		f.votes[c.Hash] = v
+		delete(f.pending, c.Hash)
+	}
 	if len(f.recent) > keepRecent*2 {
 		f.recent = append([]Confirmation(nil), f.recent[len(f.recent)-keepRecent:]...)
+		f.reindex()
 	}
 	if c.DurationMS > 0 {
 		hr := time.UnixMilli(c.Time).Truncate(time.Hour).Unix()
@@ -275,6 +286,7 @@ func (f *Feed) Seed(cs []Confirmation) {
 		all = all[len(all)-keepRecent:]
 	}
 	f.recent = all
+	f.reindex()
 }
 
 // Election is what confirmation_history knows about one block.
@@ -475,6 +487,7 @@ func (f *Feed) load() error {
 	}
 	f.mu.Lock()
 	f.recent, f.hours, f.cur, f.curStart, f.since = s.Recent, s.Hours, s.Cur, s.CurStart, s.Since
+	f.reindex()
 	f.mu.Unlock()
 	return nil
 }
@@ -505,22 +518,39 @@ func (f *Feed) addVote(rep string, hashes []string) {
 	f.mu.Lock()
 	defer f.mu.Unlock()
 	for _, h := range hashes {
-		v := f.votes[h]
+		m := f.pending
+		if f.known[h] {
+			m = f.votes
+		}
+		v := m[h]
 		if v == nil {
 			v = &voteSet{first: now, reps: map[string]struct{}{}}
-			f.votes[h] = v
+			m[h] = v
 		}
 		v.reps[rep] = struct{}{}
 	}
-	if len(f.votes) > keepVotes {
-		cut := now.Add(-15 * time.Minute)
-		for h, v := range f.votes {
-			if v.first.Before(cut) {
-				delete(f.votes, h)
+	if len(f.pending) > maxPending {
+		for h, v := range f.pending {
+			if now.Sub(v.first) > pendingFor {
+				delete(f.pending, h)
 			}
 		}
-		if len(f.votes) > keepVotes { // a flood of fresh hashes: start over
-			f.votes = map[string]*voteSet{}
+		if len(f.pending) > maxPending { // a flood of fresh hashes: drop the waiting ones only
+			f.pending = map[string]*voteSet{}
+		}
+	}
+}
+
+// reindex rebuilds the set of recent hashes and drops votes for blocks that
+// left it. Caller holds mu.
+func (f *Feed) reindex() {
+	f.known = make(map[string]bool, len(f.recent))
+	for _, c := range f.recent {
+		f.known[c.Hash] = true
+	}
+	for h := range f.votes {
+		if !f.known[h] {
+			delete(f.votes, h)
 		}
 	}
 }
