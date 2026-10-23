@@ -50,8 +50,10 @@ func (s *Server) representatives(w http.ResponseWriter, r *http.Request) {
 	}
 	d := &repsData{Snapshot: snap, All: r.URL.Query().Get("all") == "1", GradeA: snap.CountGrade("A")}
 	d.Rows = snap.Online
-	if !d.All && len(d.Rows) > 25 {
-		d.Rows = d.Rows[:25]
+	// Only a few dozen reps are online, so list them all unless that ever
+	// grows a lot; the filter box narrows the list.
+	if !d.All && len(d.Rows) > 100 {
+		d.Rows = d.Rows[:100]
 	}
 	rest := 100.0
 	for i, rp := range snap.Online {
