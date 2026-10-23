@@ -21,6 +21,7 @@ import (
 	"github.com/banano-trade/explorer-go/internal/ledger"
 	"github.com/banano-trade/explorer-go/internal/live"
 	"github.com/banano-trade/explorer-go/internal/metrics"
+	"github.com/banano-trade/explorer-go/internal/monitors"
 	"github.com/banano-trade/explorer-go/internal/node"
 	"github.com/banano-trade/explorer-go/internal/price"
 	"github.com/banano-trade/explorer-go/internal/reps"
@@ -36,8 +37,9 @@ type Server struct {
 	Live     *live.Feed     // nil when the websocket feed is off
 	Health   *health.Checker
 	Reps     *reps.Directory
-	BNS      *bns.Resolver // nil: no BNS names
-	Bg       *node.Client  // background jobs' node client (nil: use Node)
+	BNS      *bns.Resolver    // nil: no BNS names
+	Monitors *monitors.Reader // reps' node monitors (names they publish)
+	Bg       *node.Client     // background jobs' node client (nil: use Node)
 	Ledger   *ledger.Scanner
 	Metrics  *metrics.Sampler
 	Insights *insights.Engine
@@ -275,10 +277,13 @@ func (s *Server) oldExplorer(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/search?q="+url.QueryEscape(id), http.StatusFound)
 }
 
-// displayName is an account's public name: its known-account alias, else its
-// BNS name, else "".
+// displayName is an account's public name: its known-account alias, else the
+// name its node monitor publishes, else its BNS name, else "".
 func (s *Server) displayName(addr string) string {
 	if n := s.Known.Name(addr); n != "" {
+		return n
+	}
+	if n := s.Monitors.Name(addr); n != "" {
 		return n
 	}
 	if s.BNS != nil {

@@ -23,6 +23,7 @@ import (
 	"github.com/banano-trade/explorer-go/internal/ledger"
 	"github.com/banano-trade/explorer-go/internal/live"
 	"github.com/banano-trade/explorer-go/internal/metrics"
+	"github.com/banano-trade/explorer-go/internal/monitors"
 	"github.com/banano-trade/explorer-go/internal/node"
 	"github.com/banano-trade/explorer-go/internal/price"
 	"github.com/banano-trade/explorer-go/internal/reps"
@@ -96,7 +97,17 @@ func main() {
 		log.Info("imported spyglass uptime; exiting", "reps", n, "file", up.Path)
 		return
 	}
-	srv.Reps = &reps.Directory{Node: bg, Live: srv.Live, Uptime: up, Name: k.Name, Log: log}
+	// Rep names: the known-accounts list first, then what the rep's own node
+	// monitor publishes (how Creeper/spyglass named reps).
+	srv.Monitors = &monitors.Reader{Node: bg, Log: log}
+	go srv.Monitors.Run(ctx)
+	repName := func(a string) string {
+		if n := k.Name(a); n != "" {
+			return n
+		}
+		return srv.Monitors.Name(a)
+	}
+	srv.Reps = &reps.Directory{Node: bg, Live: srv.Live, Uptime: up, Name: repName, Log: log}
 	for _, a := range strings.Split(*ownReps, ",") {
 		if a = strings.TrimSpace(a); a != "" {
 			srv.Reps.OwnReps = append(srv.Reps.OwnReps, a)

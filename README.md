@@ -29,5 +29,5 @@ Deployment: `deploy/banano-explorer.service` is a sandboxed systemd unit; put ng
 
 ## Credits
 
-Known-account names come from [spyglass-api](https://github.com/dev-ptera/spyglass-api) (MIT).
+Known-account names and the curated node-monitor list come from [spyglass-api](https://github.com/dev-ptera/spyglass-api) (MIT). Reps can also name their node by running [Nano Node Monitor](https://github.com/NanoTools/nanoNodeMonitor): the explorer reads `http://<node ip>/api.php`.
 Fonts: Outfit and Overpass Mono (SIL Open Font License). Colors from the Banano press kit.

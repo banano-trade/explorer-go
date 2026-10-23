@@ -71,6 +71,11 @@ func (s *Server) search(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	res := s.Known.Search(q, 50)
+	for _, m := range s.Monitors.Search(q, 10) {
+		if _, isKnown := s.Known.Get(m.Account); !isKnown {
+			res = append(res, known.Account{Address: m.Account, Alias: m.Name, Category: "representative"})
+		}
+	}
 	if len(res) == 1 && strings.EqualFold(res[0].Alias, q) {
 		http.Redirect(w, r, "/account/"+res[0].Address, http.StatusFound)
 		return
@@ -103,6 +108,13 @@ func (s *Server) suggest(w http.ResponseWriter, r *http.Request) {
 	if len(q) >= 2 && len(q) <= 64 {
 		for _, a := range s.Known.Search(q, 8) {
 			out = append(out, suggestion{Name: a.Alias, Address: a.Address, Short: ban.Short(a.Address), Category: categoryLabel(a.Category), URL: "/account/" + a.Address})
+		}
+	}
+	if len(q) >= 2 && len(q) <= 64 {
+		for _, m := range s.Monitors.Search(q, 4) {
+			if _, isKnown := s.Known.Get(m.Account); !isKnown {
+				out = append(out, suggestion{Name: m.Name, Address: m.Account, Short: ban.Short(m.Account), Category: "Rep", URL: "/account/" + m.Account})
+			}
 		}
 	}
 	w.Header().Set("Content-Type", "application/json")

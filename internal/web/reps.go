@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/banano-trade/explorer-go/internal/ban"
+	"github.com/banano-trade/explorer-go/internal/monitors"
 	"github.com/banano-trade/explorer-go/internal/node"
 	"github.com/banano-trade/explorer-go/internal/reps"
 )
@@ -140,6 +141,7 @@ func (s *Server) delegateCheck(w http.ResponseWriter, r *http.Request) {
 }
 
 type repCardData struct {
+	Monitor    monitors.Monitor
 	Rep        *reps.Rep
 	Snap       *reps.Snapshot
 	Verdict    string
@@ -179,6 +181,7 @@ func (s *Server) repCard(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	d.Verdict, d.Reason = verdict(rp)
+	d.Monitor, _ = s.Monitors.Get(addr)
 	for _, p := range s.Reps.Uptime.Days(addr, 30) {
 		d.Days = append(d.Days, dayColor(p))
 	}
