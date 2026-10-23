@@ -78,6 +78,7 @@ type Inputs struct {
 
 // Margin is how far the actually-voting weight is above the 67% quorum.
 type Margin struct {
+	VotingBAN  float64 // weight that voted on recent blocks, in BAN
 	VotingPct  float64 // share of online weight held by reps that vote
 	Points     float64 // VotingPct - 67
 	StallCount int     // fewest reps whose going offline drops voting below 67%
@@ -200,6 +201,28 @@ func evaluate(in Inputs) Report {
 	}
 	add(c)
 
+	// Banano v26 ships online_weight_minimum = 2,151,997,623 BAN. Nodes left at
+	// that default need 67% of it in votes before they confirm anything, so if
+	// the weight that actually votes drops below ~1.44B BAN those nodes stall
+	// even while correctly configured ones (900M) carry on.
+	c = Check{ID: "default_minimum", Name: "Nodes on the v26 default minimum", Link: "/representatives",
+		Rule: "Nodes still using v26's default online_weight_minimum (2.15B) need 1.44B BAN of votes. Warns within 5% of that, operators should set it to 900M."}
+	if m := in.Margin; m == nil || m.VotingBAN <= 0 {
+		c.Value, c.What = "–", "still sampling which representatives vote"
+	} else {
+		head := (m.VotingBAN - defaultQuorumBAN) / defaultQuorumBAN * 100
+		c.Value = fmt.Sprintf("%+.1f%%", head)
+		c.What = fmt.Sprintf("%s BAN voted on recent blocks; misconfigured nodes need %s", shortF(m.VotingBAN), shortF(defaultQuorumBAN))
+		switch {
+		case head < 0:
+			c.Level = Warn
+			c.What = fmt.Sprintf("only %s BAN voted recently, below the %s that nodes on the v26 default need: those nodes aren't confirming", shortF(m.VotingBAN), shortF(defaultQuorumBAN))
+		case head < 5:
+			c.Level = Note
+		}
+	}
+	add(c)
+
 	nak := countTo(in.OnlineShares, 0.67)
 	c = Check{ID: "nakamoto_coefficient", Name: "Nakamoto coefficient", Link: "/delegate", Value: strconv.Itoa(nak),
 		What: "representatives could confirm blocks on their own", Rule: "A note below 10. Delegating to smaller reps helps."}
@@ -264,6 +287,17 @@ func evaluate(in Inputs) Report {
 		r.Problems = []string{}
 	}
 	return r
+}
+
+// defaultQuorumBAN is 67% of Banano v26's default online_weight_minimum
+// (215199762344046121122631673659940405248 raw = 2,151,997,623 BAN).
+const defaultQuorumBAN = 0.67 * 2151997623.44
+
+func shortF(f float64) string {
+	if f >= 1e9 {
+		return strconv.FormatFloat(f/1e9, 'f', 2, 64) + "B"
+	}
+	return strconv.FormatFloat(f/1e6, 'f', 0, 64) + "M"
 }
 
 // countTo is how many of the biggest shares it takes to pass limit.

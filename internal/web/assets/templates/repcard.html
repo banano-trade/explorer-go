@@ -29,6 +29,18 @@
         {{end}}
       </div>
 
+      <details class="card optip">
+        <summary><span class="pill amber">Operators</span> Running this node on v26? Check one setting</summary>
+        <div class="stack" style="gap: 10px; padding: 0 20px 18px">
+          <p style="margin: 0">Banano v26 ships with <span class="mono">online_weight_minimum</span> set to 2.15B BAN, so the node needs about 1.44B BAN of votes before it confirms anything. If voting weight dips, it stalls while correctly configured nodes carry on. The recommended value is 900M:</p>
+          <pre class="mono">grep online_weight_minimum config-node.toml
+
+# if it's missing or not 900M, add under [node]:
+online_weight_minimum = "90000000000000000000000000000000000000"</pre>
+          <p style="margin: 0" class="hint">Then restart the node. Nodes don't share their config, so the explorer can't see whether yours is set; this tip shows on every rep page.</p>
+        </div>
+      </details>
+
       <div class="card" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 12px">
         <div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; align-items: baseline">
           <h2 style="font-size: 20px; font-weight: 600">Last 30 days</h2>

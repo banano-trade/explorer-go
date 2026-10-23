@@ -16,6 +16,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/banano-trade/explorer-go/internal/ban"
 	"github.com/banano-trade/explorer-go/internal/bns"
 	"github.com/banano-trade/explorer-go/internal/health"
 	"github.com/banano-trade/explorer-go/internal/insights"
@@ -162,7 +163,7 @@ func main() {
 			}
 			return strings.Join(n[:len(n)-1], ", ") + " and " + n[len(n)-1]
 		}
-		return &health.Margin{VotingPct: snap.VotingPct, Points: snap.MarginPct, StallCount: snap.StallCount, StallNames: names(snap.StallReps), Silent: names(snap.Silent)}
+		return &health.Margin{VotingBAN: snap.VotingPct / 100 * ban.Float(snap.OnlineWeight), VotingPct: snap.VotingPct, Points: snap.MarginPct, StallCount: snap.StallCount, StallNames: names(snap.StallReps), Silent: names(snap.Silent)}
 	}
 	go srv.Health.Run(ctx)
 	hs := &http.Server{Addr: *listen, Handler: srv.Handler(), ReadHeaderTimeout: 10 * time.Second, ReadTimeout: 30 * time.Second, WriteTimeout: 60 * time.Second, IdleTimeout: 120 * time.Second, MaxHeaderBytes: 16 << 10,

@@ -23,7 +23,7 @@ func TestAllGood(t *testing.T) {
 	if !r.Good || r.Headline != "We good, fam." {
 		t.Fatalf("%+v", r)
 	}
-	if len(r.Checks) != 11 {
+	if len(r.Checks) != 12 {
 		t.Fatalf("%d checks", len(r.Checks))
 	}
 	// Nakamoto 6-ish and stall risk 2 are notes, not problems.
@@ -83,5 +83,25 @@ func TestQuorumMargin(t *testing.T) {
 	in.Margin = &Margin{VotingPct: 80, Points: 13, StallCount: 1, StallNames: "Kalium"}
 	if r := evaluate(in); !r.Good || r.Headline != "We good, mostly." {
 		t.Fatalf("one-rep stall should warn, not bork: %s", r.Headline)
+	}
+}
+
+func TestDefaultMinimum(t *testing.T) {
+	in := base(time.Now())
+	in.Margin = &Margin{VotingBAN: 1.47e9, VotingPct: 98, Points: 31, StallCount: 2, StallNames: "Kalium and Genesis"}
+	r := evaluate(in)
+	var c Check
+	for _, x := range r.Checks {
+		if x.ID == "default_minimum" {
+			c = x
+		}
+	}
+	if c.Level != Note || !r.Good {
+		t.Fatalf("1.47B is within 5%% of 1.44B: want a note, got %v (%s)", c.Level, c.Value)
+	}
+	in.Margin.VotingBAN = 1.3e9
+	r = evaluate(in)
+	if !r.Good || r.Headline != "We good, mostly." {
+		t.Fatalf("below the default quorum warns but doesn't bork: %s", r.Headline)
 	}
 }
