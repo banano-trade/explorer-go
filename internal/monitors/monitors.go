@@ -8,10 +8,13 @@ import (
 	"context"
 	_ "embed"
 	"encoding/json"
+	"errors"
 	"io"
 	"log/slog"
 	"net"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -30,17 +33,64 @@ var curatedJSON []byte
 
 // Monitor is what a rep's monitor says about its node.
 type Monitor struct {
-	Account string
-	Name    string
-	URL     string // the monitor page, for linking
-	Version string
-	Peers   int
-	Seen    time.Time
+	Account string    `json:"account"`
+	Name    string    `json:"name"`
+	URL     string    `json:"url"` // the monitor page, for linking
+	Version string    `json:"version,omitempty"`
+	Peers   int       `json:"peers,omitempty"`
+	Seen    time.Time `json:"seen"`
+}
+
+// Load restores the last saved results, so names are there right after a
+// restart. A missing file is fine.
+func (r *Reader) Load() error {
+	if r.Path == "" {
+		return nil
+	}
+	b, err := os.ReadFile(r.Path)
+	if errors.Is(err, os.ErrNotExist) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	var saved map[string]Monitor
+	if err := json.Unmarshal(b, &saved); err != nil {
+		return err
+	}
+	for a, m := range saved { // the file is ours, but keep it to what fetch would accept
+		if _, err := ban.ParseAddress(a); err != nil || m.Account != a || cleanName(m.Name) != m.Name || m.Name == "" {
+			delete(saved, a)
+		}
+	}
+	r.mu.Lock()
+	r.byAcc = saved
+	r.mu.Unlock()
+	return nil
+}
+
+func (r *Reader) save(m map[string]Monitor) error {
+	if r.Path == "" {
+		return nil
+	}
+	b, err := json.Marshal(m)
+	if err != nil {
+		return err
+	}
+	if err := os.MkdirAll(filepath.Dir(r.Path), 0o750); err != nil {
+		return err
+	}
+	tmp := r.Path + ".tmp"
+	if err := os.WriteFile(tmp, b, 0o640); err != nil {
+		return err
+	}
+	return os.Rename(tmp, r.Path)
 }
 
 type Reader struct {
 	Node *node.Client
 	Log  *slog.Logger
+	Path string // where the last results are saved; "" = memory only
 
 	mu    sync.RWMutex
 	byAcc map[string]Monitor
@@ -183,9 +233,21 @@ func (r *Reader) refresh(ctx context.Context) {
 	if len(out) == 0 && ctx.Err() != nil {
 		return
 	}
+	// A monitor that's briefly down keeps its name for a day rather than
+	// flickering off the site.
+	r.mu.RLock()
+	for a, m := range r.byAcc {
+		if _, ok := out[a]; !ok && time.Since(m.Seen) < 24*time.Hour {
+			out[a] = m
+		}
+	}
+	r.mu.RUnlock()
 	r.mu.Lock()
 	r.byAcc = out
 	r.mu.Unlock()
+	if err := r.save(out); err != nil {
+		r.Log.Warn("node monitors save", "err", err)
+	}
 	r.Log.Info("node monitors", "found", len(out), "checked", len(targets))
 }
 

@@ -6,7 +6,9 @@ import (
 	"log/slog"
 	"net"
 	"os"
+	"path/filepath"
 	"testing"
+	"time"
 
 	"github.com/banano-trade/explorer-go/internal/node"
 )
@@ -46,5 +48,26 @@ func TestLive(t *testing.T) {
 	t.Logf("found %d monitors; Mesharound: %+v %v", len(r.byAcc), m, ok)
 	if !ok {
 		t.Fatal("Mesharound's monitor not found")
+	}
+}
+
+func TestSaveLoad(t *testing.T) {
+	path := filepath.Join(t.TempDir(), "monitors.json")
+	r := &Reader{Path: path}
+	a := "ban_1meshar4yyq7du6u6oc7yxpuj7b9geqnhtn9sxqu6yue4zopaimidhthm4eq"
+	in := map[string]Monitor{a: {Account: a, Name: "Mesharound", URL: "http://45.74.35.236", Seen: time.Now()},
+		"ban_bogus": {Account: "ban_bogus", Name: "x"}}
+	if err := r.save(in); err != nil {
+		t.Fatal(err)
+	}
+	g := &Reader{Path: path}
+	if err := g.Load(); err != nil {
+		t.Fatal(err)
+	}
+	if g.Name(a) != "Mesharound" || g.Name("ban_bogus") != "" {
+		t.Fatalf("got %q / %q", g.Name(a), g.Name("ban_bogus"))
+	}
+	if err := (&Reader{Path: filepath.Join(t.TempDir(), "missing.json")}).Load(); err != nil {
+		t.Fatal("missing file should be fine:", err)
 	}
 }

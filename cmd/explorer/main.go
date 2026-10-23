@@ -99,7 +99,10 @@ func main() {
 	}
 	// Rep names: the known-accounts list first, then what the rep's own node
 	// monitor publishes (how Creeper/spyglass named reps).
-	srv.Monitors = &monitors.Reader{Node: bg, Log: log}
+	srv.Monitors = &monitors.Reader{Node: bg, Log: log, Path: filepath.Join(*stateDir, "monitors.json")}
+	if err := srv.Monitors.Load(); err != nil { // before the first rep refresh, so names show at once
+		log.Warn("node monitors load", "err", err)
+	}
 	go srv.Monitors.Run(ctx)
 	repName := func(a string) string {
 		if n := k.Name(a); n != "" {
