@@ -21,7 +21,8 @@ import (
 	"github.com/banano-trade/explorer-go/internal/node"
 )
 
-// curated are monitor URLs reps registered with spyglass (MIT, dev-ptera),
+// curated are monitor URLs reps registered with spyglass (MIT, dev-ptera;
+// server/database/banano/monitored-representative.json, synced 2026-10-23),
 // for monitors that don't live on the node's own IP. They are trusted as is.
 //
 //go:embed curated.json
